@@ -1,14 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0F172A" />
+<meta name="theme-color" content="#FFFFFF" />
 <title>Bayhaqy Arcade — Mini Games Collection</title>
 <meta name="description" content="A collection of 7 mini games built with HTML5 Canvas. Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, and Gravity Flip — each with progressive level systems." />
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem('arcade-theme');
+      if (saved === 'dark' || saved === 'light') {
+        document.documentElement.setAttribute('data-theme', saved);
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    } catch (e) {}
+  })();
+</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
+    /* LIGHT THEME (default) */
+    --bg: #FFFFFF;
+    --bg-2: #F8FAFC;
+    --bg-3: #F1F5F9;
+    --fg: #0F172A;
+    --muted: #64748B;
+    --accent: #DC2626;
+    --accent-2: #F59E0B;
+    --green: #10B981;
+    --card-bg: linear-gradient(160deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));
+    --card-border: rgba(15, 23, 42, 0.08);
+    --card-border-hover: rgba(15, 23, 42, 0.15);
+    --chip-bg: rgba(241, 245, 249, 0.8);
+    --chip-border: rgba(15, 23, 42, 0.08);
+    --chip-hover: rgba(226, 232, 240, 0.9);
+    --header-border: rgba(15, 23, 42, 0.06);
+    --shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.12);
+    --radius: 14px;
+  }
+  [data-theme="dark"] {
     --bg: #0F172A;
     --bg-2: #1E293B;
     --bg-3: #334155;
@@ -17,8 +49,14 @@
     --accent: #DC2626;
     --accent-2: #F59E0B;
     --green: #10B981;
+    --card-bg: linear-gradient(160deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+    --card-border: rgba(241, 245, 249, 0.07);
+    --card-border-hover: rgba(241, 245, 249, 0.15);
+    --chip-bg: rgba(30, 41, 59, 0.6);
+    --chip-border: rgba(241, 245, 249, 0.08);
+    --chip-hover: rgba(51, 65, 85, 0.8);
+    --header-border: rgba(241, 245, 249, 0.06);
     --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-    --radius: 14px;
   }
   html, body {
     background: var(--bg);
@@ -28,14 +66,22 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background 0.3s ease, color 0.3s ease;
   }
   body {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220, 38, 38, 0.08), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(245, 158, 11, 0.05), transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  [data-theme="dark"] body {
     background:
       radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220, 38, 38, 0.10), transparent 60%),
       radial-gradient(ellipse 60% 50% at 100% 100%, rgba(245, 158, 11, 0.06), transparent 50%),
       var(--bg);
     background-attachment: fixed;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   .container {
     max-width: 1280px;
@@ -47,9 +93,34 @@
   .site-header {
     padding: 3rem 0 1.5rem;
     text-align: center;
-    border-bottom: 1px solid rgba(241, 245, 249, 0.06);
+    border-bottom: 1px solid var(--header-border);
     margin-bottom: 2rem;
+    position: relative;
   }
+  .theme-toggle-portal {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--fg);
+    font-size: 18px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, border-color .2s, transform .15s;
+  }
+  .theme-toggle-portal:hover { background: var(--chip-hover); transform: translateY(-1px); }
+  .theme-toggle-portal:active { transform: scale(0.94); }
+  .theme-toggle-portal .icon-sun { display: none; }
+  .theme-toggle-portal .icon-moon { display: block; }
+  [data-theme="dark"] .theme-toggle-portal .icon-sun { display: block; }
+  [data-theme="dark"] .theme-toggle-portal .icon-moon { display: none; }
   .site-eyebrow {
     display: inline-block;
     font-size: 0.75rem;
@@ -84,8 +155,8 @@
     gap: 1.5rem;
     margin-top: 0.75rem;
     padding: 0.75rem 1.25rem;
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(241, 245, 249, 0.06);
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
     border-radius: 999px;
     font-size: 0.875rem;
   }
@@ -115,8 +186,8 @@
     margin-bottom: 2rem;
   }
   .filter-chip {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(241, 245, 249, 0.08);
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
     color: var(--muted);
     padding: 0.5rem 1.1rem;
     border-radius: 999px;
@@ -128,7 +199,7 @@
     user-select: none;
   }
   .filter-chip:hover {
-    background: rgba(51, 65, 85, 0.8);
+    background: var(--chip-hover);
     color: var(--fg);
     transform: translateY(-1px);
   }
@@ -147,8 +218,8 @@
   }
   .game-card {
     position: relative;
-    background: linear-gradient(160deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
-    border: 1px solid rgba(241, 245, 249, 0.07);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: var(--radius);
     overflow: hidden;
     cursor: pointer;
@@ -173,9 +244,9 @@
   .preview {
     position: relative;
     aspect-ratio: 16 / 10;
-    background: var(--preview-bg, #1E293B);
+    background: var(--preview-bg, var(--bg-3));
     overflow: hidden;
-    border-bottom: 1px solid rgba(241, 245, 249, 0.06);
+    border-bottom: 1px solid var(--card-border);
   }
   .preview-canvas {
     position: absolute;
@@ -202,7 +273,7 @@
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    color: var(--fg);
+    color: #F1F5F9;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -255,11 +326,11 @@
     color: var(--accent-2);
     letter-spacing: 1px;
   }
-  .stars .empty { color: rgba(241, 245, 249, 0.18); }
+  .stars .empty { color: var(--card-border-hover); }
   .play-btn {
     margin-top: 0.7rem;
-    background: rgba(241, 245, 249, 0.06);
-    border: 1px solid rgba(241, 245, 249, 0.12);
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
     color: var(--fg);
     padding: 0.6rem 1rem;
     border-radius: 10px;
@@ -277,7 +348,7 @@
   .site-footer {
     padding: 2rem 0 3rem;
     text-align: center;
-    border-top: 1px solid rgba(241, 245, 249, 0.06);
+    border-top: 1px solid var(--header-border);
   }
   .site-footer a {
     color: var(--muted);
@@ -322,6 +393,10 @@
 </head>
 <body>
   <header class="site-header">
+    <button class="theme-toggle-portal" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+      <span class="icon-moon">🌙</span>
+      <span class="icon-sun">☀️</span>
+    </button>
     <div class="container">
       <span class="site-eyebrow">Mini Games Collection</span>
       <h1 class="site-title">Bayhaqy <span class="accent">Arcade</span></h1>
@@ -895,6 +970,19 @@ function drawGravityFlip(ctx, W, H, t) {
   ctx.fill();
   ctx.restore();
 }
+
+// ---------- Theme toggle ----------
+(function() {
+  var toggle = document.getElementById('themeToggle');
+  if (toggle) {
+    toggle.addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('arcade-theme', next); } catch (e) {}
+    });
+  }
+})();
 
 // ---------- Filter wiring ----------
 document.getElementById("filterBar").addEventListener("click", (e) => {
