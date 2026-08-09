@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0F172A" />
+<title>Stack Tower — Bayhaqy Arcade</title>
+<meta name="description" content="Stack Tower — drop sliding blocks, build the tallest tower, master 10 levels of precision stacking." />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0F172A;
+    --text: #F1F5F9;
+    --accent: #DC2626;
+    --muted: rgba(241, 245, 249, 0.6);
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  #game-wrap {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+  canvas#game {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    background: #0F172A;
+  }
+
+  /* === Top bar === */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 30;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .back-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 11px;
+    border-radius: 9px;
+    transition: color .15s, background .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .back-link:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+  .topbar .title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #DC2626, #F59E0B, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mute-btn {
+    width: 36px; height: 36px;
+    border: 0;
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border-radius: 9px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mute-btn:hover { background: rgba(255,255,255,0.15); }
+  .mute-btn:active { transform: scale(0.95); }
+
+  /* === HUD === */
+  .hud {
+    position: fixed;
+    top: calc(46px + env(safe-area-inset-top, 0px) + 8px);
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    pointer-events: none;
+    z-index: 12;
+  }
+  .hud-left, .hud-right { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+  .hud-left { justify-content: flex-start; }
+  .stat {
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    padding: 6px 9px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    line-height: 1.1;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-label {
+    font-size: 8.5px;
+    opacity: 0.65;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 700;
+  }
+  .stat-h .stat-big { font-size: 16px; font-weight: 900; color: #FBBF24; }
+  .stat-h .stat-tgt { opacity: 0.55; font-weight: 700; font-size: 12px; }
+  .stat.good { background: rgba(251, 191, 36, 0.85); color: #1F2937; }
+  .stat.good .stat-label { opacity: 0.85; color: #1F2937; }
+
+  /* === Progress bar === */
+  .progress-bar {
+    position: fixed;
+    top: calc(46px + env(safe-area-inset-top, 0px) + 42px);
+    left: 12px; right: 12px;
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    z-index: 11;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #DC2626 0%, #F59E0B 50%, #FBBF24 100%);
+    transition: width .12s linear;
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+  }
+
+  /* === Pause button === */
+  .pause-btn {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 20px;
+    width: 46px; height: 46px;
+    border: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 12;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .pause-btn.show { display: inline-flex; }
+  .pause-btn:active { transform: scale(0.95); }
+
+  /* === Tap hint === */
+  .tap-hint {
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(220, 38, 38, 0.9);
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 12;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .tap-hint.show { opacity: 1; }
+  @keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.06); }
+  }
+
+  /* === Level intro === */
+  .level-intro {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    z-index: 25;
+    pointer-events: none;
+    background: rgba(15, 23, 42, 0.3);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .level-intro.show { display: flex; opacity: 1; }
+  .level-intro.fade { opacity: 0; }
+  .intro-num {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .intro-name {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #DC2626, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .intro-target {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* === Tutorial === */
+  .tutorial {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 35;
+    padding: 20px;
+  }
+  .tutorial.show { display: flex; }
+  .tutorial-inner {
+    background: linear-gradient(160deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    padding: 26px 22px;
+    border-radius: 18px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+  .tut-badge {
+    display: inline-block;
+    background: rgba(220, 38, 38, 0.18);
+    color: #FCA5A5;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .tutorial-inner h2 { font-size: 22px; margin-bottom: 14px; color: #FEE2E2; font-weight: 800; }
+  .tutorial-inner p { font-size: 13.5px; margin-bottom: 9px; line-height: 1.55; color: #E2E8F0; }
+  .tutorial-inner kbd {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 11.5px;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-weight: 700;
+    color: #fff;
+  }
+  .tutorial-inner strong { color: #FBBF24; }
+
+  /* === Modals === */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  .modal.show { display: flex; }
+  .modal-inner {
+    background: linear-gradient(160deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 26px 22px;
+    border-radius: 20px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    margin: auto;
+  }
+  .modal-inner h1 {
+    font-size: 30px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #DC2626, #F59E0B, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+  }
+  .modal-inner h2 { font-size: 22px; margin-bottom: 14px; font-weight: 800; }
+  .modal-inner .subtitle { color: var(--muted); margin-bottom: 22px; font-size: 13.5px; }
+  .win-badge, .lose-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .win-badge { background: rgba(34, 197, 94, 0.2); color: #4ADE80; }
+  .lose-badge { background: rgba(220, 38, 38, 0.2); color: #F87171; }
+  .lose-msg { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+
+  /* === Levels grid === */
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 9px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 420px) {
+    .levels-grid { grid-template-columns: repeat(5, 1fr); gap: 7px; }
+  }
+  @media (max-width: 360px) {
+    .levels-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  }
+  .level-card {
+    aspect-ratio: 1 / 1.18;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform .12s, background .15s, border .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card:not(.locked):hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
+  .level-card:not(.locked):active { transform: translateY(0); }
+  .level-card.locked { opacity: 0.55; cursor: not-allowed; }
+  .level-card .num { font-size: 22px; font-weight: 900; line-height: 1; }
+  .level-card .name { font-size: 9px; opacity: 0.7; margin-top: 3px; text-align: center; line-height: 1.1; font-weight: 600; letter-spacing: 0.02em; }
+  .level-card .stars { font-size: 10px; margin-top: 4px; letter-spacing: 1px; line-height: 1; }
+  .level-card .stars .s-on { color: #FBBF24; }
+  .level-card .stars .s-off { color: rgba(255,255,255,0.15); }
+  .level-card .lock { position: absolute; top: 4px; right: 5px; font-size: 10px; opacity: 0.6; }
+  .level-card .best { font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: 600; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 14px;
+    margin-bottom: 18px;
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .legend span { white-space: nowrap; }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 16px 0;
+    padding: 14px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .stats-row > div { display: flex; flex-direction: column; gap: 4px; }
+  .stats-row span { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .stats-row strong { font-size: 17px; font-weight: 800; }
+
+  .stars-big {
+    font-size: 38px;
+    letter-spacing: 6px;
+    margin: 6px 0 14px;
+    color: #FBBF24;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+    line-height: 1;
+  }
+  .stars-big .s-off { color: rgba(255,255,255,0.15); text-shadow: none; }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border: 0;
+    padding: 11px 16px;
+    border-radius: 11px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .1s, background .15s;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+  }
+  .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.15); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #B91C1C; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* === Responsive tweaks === */
+  @media (max-width: 480px) {
+    .topbar .title { font-size: 13px; }
+    .stat { font-size: 11px; padding: 5px 8px; }
+    .stat-label { font-size: 8px; }
+    .stat-h .stat-big { font-size: 14px; }
+    .modal-inner h1 { font-size: 26px; }
+    .modal-inner h2 { font-size: 20px; }
+    .intro-name { font-size: 30px; }
+    .level-card .num { font-size: 19px; }
+    .level-card .name { font-size: 8px; }
+    .level-card .stars { font-size: 9px; }
+    .level-card .best { font-size: 7.5px; }
+  }
+  @media (max-height: 580px) {
+    .hud { top: 50px; }
+    .progress-bar { top: 86px; }
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../" class="back-link" aria-label="Back to games">← Games</a>
+    <div class="title">Stack Tower</div>
+    <button class="mute-btn" id="muteBtn" aria-label="Toggle sound">🔊</button>
+  </header>
+
+  <div id="game-wrap">
+    <canvas id="game"></canvas>
+
+    <div class="hud" id="hud">
+      <div class="hud-left">
+        <div class="stat"><span class="stat-label">LVL</span><span id="hudLevel">1</span></div>
+        <div class="stat stat-h">
+          <span class="stat-label">HEIGHT</span>
+          <span class="stat-big" id="hudHeight">0</span>
+          <span class="stat-tgt">/<span id="hudTarget">5</span></span>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="stat" id="hudPerfectStat"><span class="stat-label">PERFECT</span><span id="hudPerfect">0</span></div>
+        <div class="stat"><span class="stat-label">SCORE</span><span id="hudScore">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <button class="pause-btn" id="pauseBtn" aria-label="Pause">⏸</button>
+
+    <div class="tap-hint" id="tapHint">TAP TO DROP</div>
+
+    <div class="level-intro" id="levelIntro">
+      <div class="intro-num" id="introNum">LEVEL 1</div>
+      <div class="intro-name" id="introName">Foundation</div>
+      <div class="intro-target" id="introTarget">Stack 5 blocks</div>
+    </div>
+
+    <div class="tutorial" id="tutorial">
+      <div class="tutorial-inner">
+        <div class="tut-badge">TUTORIAL</div>
+        <h2>Level 1 — Foundation</h2>
+        <p>A block slides back and forth at the top of the screen.</p>
+        <p>Tap, click, or press <kbd>Space</kbd> to <strong>drop the block</strong> straight down onto the tower.</p>
+        <p>Any overhang gets sliced off and falls away — making the next block smaller!</p>
+        <p><strong>Perfect drops</strong> (within 5px of alignment) give +50 bonus and DON'T shrink the block. Chain them to climb higher!</p>
+        <button class="btn btn-primary" id="tutorialStart" style="margin-top:8px">Start Level</button>
+      </div>
+    </div>
+
+    <div class="modal" id="levelPicker">
+      <div class="modal-inner">
+        <h1>STACK TOWER</h1>
+        <p class="subtitle">Drop. Align. Stack. Master 10 levels.</p>
+        <div class="levels-grid" id="levelsGrid"></div>
+        <div class="legend">
+          <span>★ Reach target</span>
+          <span>★★ Exceed by 1-4</span>
+          <span>★★★ Exceed by 5+</span>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="resetProgress">Reset Progress</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="winModal">
+      <div class="modal-inner">
+        <div class="win-badge">LEVEL COMPLETE</div>
+        <h2 id="winLevelName">Level 1</h2>
+        <div class="stars-big" id="winStars">★★★</div>
+        <div class="stats-row">
+          <div><span>Height</span><strong id="winHeight">0</strong></div>
+          <div><span>Perfects</span><strong id="winPerfects">0</strong></div>
+          <div><span>Score</span><strong id="winScore">0</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="winMenu">Levels</button>
+          <button class="btn" id="winRetry">Retry</button>
+          <button class="btn btn-primary" id="winNext">Next Level →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="loseModal">
+      <div class="modal-inner">
+        <div class="lose-badge">GAME OVER</div>
+        <h2 id="loseLevelName">Level 1</h2>
+        <p class="lose-msg" id="loseMsg">Your block missed the tower!</p>
+        <div class="stats-row">
+          <div><span>Height</span><strong id="loseHeight">0</strong></div>
+          <div><span>Perfects</span><strong id="losePerfects">0</strong></div>
+          <div><span>Score</span><strong id="loseScore">0</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="loseMenu">Levels</button>
+          <button class="btn btn-primary" id="loseRetry">Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="pauseModal">
+      <div class="modal-inner">
+        <h2>Paused</h2>
+        <p class="subtitle">Take a breath.</p>
+        <div class="modal-actions">
+          <button class="btn" id="pauseMenu">Levels</button>
+          <button class="btn btn-primary" id="pauseResume">Resume</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  "use strict";
+
+  // ============================================================
+  //  CONFIGURATION
+  // ============================================================
+  const SAVE_KEY = 'stack_progress';
+  const MUTE_KEY = 'stack_muted';
+  const BLOCK_H = 32;
+  const ACTIVE_BLOCK_SCREEN_Y = 130;   // top of sliding block (fixed screen pos)
+  const TOWER_TOP_SCREEN_Y = 240;      // where top of current tower sits (screen)
+  const PERFECT_TOLERANCE = 5;         // px of center-alignment for perfect drop
+  const DROP_GRAVITY = 5200;           // px/s^2 applied to falling active block
+  const CUT_GRAVITY = 1700;            // px/s^2 applied to cut-off pieces
+  const CUT_LIFETIME = 1500;           // ms before cut piece fades fully
+  const SIDE_MARGIN = 12;              // px gutter on left/right of play area
+  const FOUNDATION_TINT = 0.35;        // foundation block brightness factor
+  const PERFECT_BONUS = 50;
+  const STACK_POINTS = 10;
+  const CAMERA_LERP = 0.14;            // camera follow smoothness
+  const PERFECT_CHAIN_PITCH = 1.0595;  // semitone multiplier per chain perfect
+
+  const LEVELS = [
+    { id: 1,  name: 'Foundation', target: 5,  speed: 80,  blockWidth: 220, hueStep: 36, tutorial: true  },
+    { id: 2,  name: 'Steady',     target: 8,  speed: 95,  blockWidth: 220, hueStep: 36 },
+    { id: 3,  name: 'Rhythm',     target: 12, speed: 120, blockWidth: 200, hueStep: 36 },
+    { id: 4,  name: 'Prism',      target: 15, speed: 135, blockWidth: 200, hueStep: 72 },
+    { id: 5,  name: 'Velocity',   target: 20, speed: 155, blockWidth: 200, hueStep: 36 },
+    { id: 6,  name: 'Precision',  target: 25, speed: 175, blockWidth: 190, hueStep: 40 },
+    { id: 7,  name: 'Frenzy',     target: 30, speed: 185, blockWidth: 180, hueStep: 36 },
+    { id: 8,  name: 'Hyper',      target: 35, speed: 205, blockWidth: 180, hueStep: 40 },
+    { id: 9,  name: 'Insane',     target: 40, speed: 225, blockWidth: 175, hueStep: 42 },
+    { id: 10, name: 'Mastery',    target: 50, speed: 250, blockWidth: 170, hueStep: 45 },
+  ];
+
+  // ============================================================
+  //  STATE
+  // ============================================================
+  let state = 'menu';                  // 'menu' | 'intro' | 'playing' | 'paused' | 'won' | 'lost'
+  let currentLevel = null;
+  let stacked = 0;                     // successfully placed blocks (excludes foundation)
+  let perfects = 0;
+  let score = 0;
+  let levelCleared = false;            // true after first reaching target
+  let perfectChain = 0;                // consecutive perfects (resets on non-perfect)
+
+  // tower blocks: each { x, width, worldY (top), hue, perfect, landT }
+  let tower = [];
+  // active sliding/falling block
+  let active = { x: 0, width: 0, worldY: 0, vx: 0, dir: 1, hue: 0, dropping: false, vy: 0, dropStartY: 0, dropTargetY: 0, stretch: 0, landTime: 0 };
+  // camera: worldY at top of viewport
+  let camera = { y: 0, targetY: 0, shake: 0 };
+
+  // visual effects
+  let cutPieces = [];
+  let particles = [];
+  let floatingTexts = [];
+  let bgStars = [];
+  let flashAlpha = 0;
+  let flashColor = '#FBBF24';
+  let perfectFlashTimer = 0;
+  let clearedFlashTimer = 0;
+
+  let muted = false;
+  let lastTime = performance.now();
+  let introTimer = 0;
+  let firstDropDone = false;
+  let dropCooldownUntil = 0;
+
+  // canvas
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1;
+
+  // ============================================================
+  //  SAVE / LOAD
+  // ============================================================
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (p && typeof p.unlocked === 'number' && p.levels) return p;
+      }
+    } catch (e) {}
+    return { unlocked: 1, levels: {} };
+  }
+  function saveProgress(p) {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(p)); } catch (e) {}
+  }
+  function loadMute() {
+    try { return localStorage.getItem(MUTE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function saveMute() {
+    try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {}
+  }
+  let progress = loadProgress();
+  muted = loadMute();
+
+  // ============================================================
+  //  AUDIO (Web Audio API SFX)
+  // ============================================================
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    }
+    return audioCtx;
+  }
+  function playSound(type, opts) {
+    if (muted) return;
+    const ac = getAudioCtx();
+    if (!ac) return;
+    if (ac.state === 'suspended') ac.resume();
+    const now = ac.currentTime;
+    opts = opts || {};
+
+    function tone(freq1, freq2, dur, wave, vol) {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = wave;
+      o.frequency.setValueAtTime(freq1, now);
+      if (freq2 !== freq1) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq2), now + dur);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(vol, now + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.start(now); o.stop(now + dur + 0.02);
+    }
+    function noise(dur, vol, filterFreq) {
+      const bufSize = Math.floor(ac.sampleRate * dur);
+      const buf = ac.createBuffer(1, bufSize, ac.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+      const src = ac.createBufferSource();
+      src.buffer = buf;
+      const filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.value = filterFreq || 800;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(vol, now);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      src.connect(filt); filt.connect(g); g.connect(ac.destination);
+      src.start(now); src.stop(now + dur);
+    }
+
+    switch (type) {
+      case 'land':
+        tone(220, 110, 0.12, 'sine', 0.18);
+        tone(110, 60, 0.16, 'triangle', 0.10);
+        noise(0.06, 0.08, 500);
+        break;
+      case 'perfect': {
+        const base = 880 * Math.pow(PERFECT_CHAIN_PITCH, (opts.chain || 0));
+        tone(base, base, 0.12, 'sine', 0.16);
+        tone(base * 1.5, base * 1.5, 0.18, 'triangle', 0.10);
+        setTimeout(() => { if (!muted) tone(base * 2, base * 2, 0.14, 'sine', 0.08); }, 70);
+        break;
+      }
+      case 'cut':
+        tone(180, 80, 0.18, 'sawtooth', 0.12);
+        noise(0.12, 0.07, 400);
+        break;
+      case 'cleared':
+        [523, 659, 784, 1047].forEach((f, i) => {
+          setTimeout(() => { if (!muted) tone(f, f, 0.18, 'triangle', 0.13); }, i * 75);
+        });
+        break;
+      case 'win':
+        [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => {
+          setTimeout(() => { if (!muted) tone(f, f, 0.22, 'triangle', 0.13); }, i * 90);
+        });
+        break;
+      case 'lose':
+        [330, 247, 175, 110, 70].forEach((f, i) => {
+          setTimeout(() => { if (!muted) tone(f, f * 0.7, 0.26, 'sawtooth', 0.13); }, i * 110);
+        });
+        break;
+      case 'click':
+        tone(620, 620, 0.04, 'sine', 0.06);
+        break;
+    }
+  }
+
+  // ============================================================
+  //  CANVAS SETUP
+  // ============================================================
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    initStars();
+  }
+  window.addEventListener('resize', resize);
+
+  function initStars() {
+    bgStars = [];
+    const count = Math.floor((W * H) / 9000);
+    for (let i = 0; i < count; i++) {
+      bgStars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.4 + 0.3,
+        a: Math.random() * 0.5 + 0.15,
+        tw: Math.random() * Math.PI * 2,
+        tws: Math.random() * 1.5 + 0.5,
+      });
+    }
+  }
+
+  // ============================================================
+  //  HELPERS
+  // ============================================================
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function hsl(h, s, l, a) { return a != null ? `hsla(${h}, ${s}%, ${l}%, ${a})` : `hsl(${h}, ${s}%, ${l}%)`; }
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function blockHue(level, stackIndex) {
+    // hue cycles through spectrum; level.hueStep deg per block
+    return (stackIndex * level.hueStep) % 360;
+  }
+
+  // ============================================================
+  //  GAME FLOW
+  // ============================================================
+  function startLevel(levelId) {
+    const level = LEVELS.find(l => l.id === levelId);
+    if (!level) return;
+    currentLevel = level;
+    stacked = 0;
+    perfects = 0;
+    score = 0;
+    levelCleared = false;
+    perfectChain = 0;
+    tower = [];
+    cutPieces = [];
+    particles = [];
+    floatingTexts = [];
+    firstDropDone = false;
+    dropCooldownUntil = 0;
+    flashAlpha = 0;
+    perfectFlashTimer = 0;
+    clearedFlashTimer = 0;
+
+    // foundation block (counts as tower[0], not stacked)
+    const fw = level.blockWidth;
+    const foundation = {
+      x: W / 2,
+      width: fw,
+      worldY: 0,                  // top of foundation at worldY 0
+      hue: blockHue(level, 0),
+      perfect: false,
+      landT: performance.now(),
+      isFoundation: true,
+    };
+    tower.push(foundation);
+
+    // camera: top of foundation at TOWER_TOP_SCREEN_Y on screen
+    camera.y = 0 - TOWER_TOP_SCREEN_Y;
+    camera.targetY = camera.y;
+    camera.shake = 0;
+
+    spawnActiveBlock(true);
+
+    // HUD update
+    document.getElementById('hudLevel').textContent = level.id;
+    document.getElementById('hudTarget').textContent = level.target;
+    updateHUD();
+
+    // intro overlay
+    document.getElementById('introNum').textContent = 'LEVEL ' + level.id;
+    document.getElementById('introName').textContent = level.name;
+    document.getElementById('introTarget').textContent = 'Stack ' + level.target + ' blocks';
+
+    // tutorial? (only show once ever — tracked in progress)
+    const tutorial = document.getElementById('tutorial');
+    const intro = document.getElementById('levelIntro');
+    const tutorialSeen = !!progress.tutorialSeen;
+    if (level.tutorial && !tutorialSeen) {
+      tutorial.classList.add('show');
+      state = 'menu';  // wait for tutorial start
+    } else {
+      intro.classList.add('show');
+      intro.classList.remove('fade');
+      state = 'intro';
+      introTimer = 1300;
+    }
+    document.getElementById('pauseBtn').classList.add('show');
+
+    // tap hint: show until first drop
+    const hint = document.getElementById('tapHint');
+    hint.textContent = 'TAP / SPACE TO DROP';
+    if (state === 'intro' || state === 'playing') hint.classList.add('show');
+    else hint.classList.remove('show');
+  }
+
+  function spawnActiveBlock(firstTime) {
+    const level = currentLevel;
+    const prevTop = tower[tower.length - 1];
+    // new active width = previous top width (preserved through perfect, narrowed through cuts)
+    let w = prevTop.width;
+    // hue continues progression by stacked count
+    const hue = blockHue(level, stacked + 1);
+    // start at left edge moving right, alternate side based on stacked
+    const startX = (stacked % 2 === 0) ? SIDE_MARGIN + w / 2 : W - SIDE_MARGIN - w / 2;
+    const dir = (stacked % 2 === 0) ? 1 : -1;
+    active.x = startX;
+    active.width = w;
+    active.worldY = camera.y + ACTIVE_BLOCK_SCREEN_Y;
+    active.vx = level.speed * dir;
+    active.dir = dir;
+    active.hue = hue;
+    active.dropping = false;
+    active.vy = 0;
+    active.stretch = 0;
+    active.landTime = 0;
+  }
+
+  // ============================================================
+  //  INPUT — drop the block
+  // ============================================================
+  function tryDrop() {
+    if (state !== 'playing') return;
+    if (active.dropping) return;
+    const now = performance.now();
+    if (now < dropCooldownUntil) return;
+
+    active.dropping = true;
+    active.vy = 0;
+    active.dropStartY = active.worldY;
+    // target = top of current tower - BLOCK_H (i.e., the new block's top worldY)
+    const top = tower[tower.length - 1];
+    active.dropTargetY = top.worldY - BLOCK_H;
+    active.vx = 0;
+    dropCooldownUntil = now + 120;
+
+    if (!firstDropDone) {
+      firstDropDone = true;
+      document.getElementById('tapHint').classList.remove('show');
+    }
+  }
+
+  function togglePause() {
+    if (state === 'playing') {
+      state = 'paused';
+      document.getElementById('pauseModal').classList.add('show');
+    } else if (state === 'paused') {
+      state = 'playing';
+      document.getElementById('pauseModal').classList.remove('show');
+      lastTime = performance.now();
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'ArrowDown' || e.code === 'KeyS' || e.code === 'Enter') {
+      e.preventDefault();
+      if (state === 'playing') tryDrop();
+      else if (state === 'menu' && !document.getElementById('tutorial').classList.contains('show')
+               && !document.getElementById('levelPicker').classList.contains('show')) {
+        // ignore
+      }
+    } else if (e.code === 'KeyP' || e.code === 'Escape') {
+      e.preventDefault();
+      if (state === 'playing' || state === 'paused') togglePause();
+    }
+  });
+
+  // pointer / touch on canvas — drop the block
+  function onPointerDown(e) {
+    if (e.target && e.target.closest && e.target.closest('button, a, .modal, .tutorial')) return;
+    if (state === 'playing') {
+      e.preventDefault();
+      tryDrop();
+    }
+  }
+  canvas.addEventListener('pointerdown', onPointerDown);
+  // also catch taps that miss the canvas (full-screen tap)
+  document.getElementById('game-wrap').addEventListener('pointerdown', (e) => {
+    if (state === 'playing' && (e.target === canvas || e.target === document.getElementById('game-wrap'))) {
+      e.preventDefault();
+      tryDrop();
+    }
+  });
+
+  // ============================================================
+  //  DROP RESOLUTION
+  // ============================================================
+  function resolveDrop() {
+    const level = currentLevel;
+    const prevTop = tower[tower.length - 1];
+    const droppedX = active.x;
+    const droppedW = active.width;
+    const hue = active.hue;
+
+    // overlap with previous top block (in x)
+    const newL = droppedX - droppedW / 2;
+    const newR = droppedX + droppedW / 2;
+    const prevL = prevTop.x - prevTop.width / 2;
+    const prevR = prevTop.x + prevTop.width / 2;
+    const overlapL = Math.max(newL, prevL);
+    const overlapR = Math.min(newR, prevR);
+    const overlap = overlapR - overlapL;
+
+    if (overlap <= 0) {
+      // GAME OVER — block misses tower entirely
+      // spawn the entire dropped block as a falling cut piece (rotates away)
+      spawnCutPiece(droppedX, active.worldY, droppedW, hue, 0, true);
+      camera.shake = 14;
+      flashScreen('#DC2626', 0.5);
+      playSound('lose');
+      endLevel(false);
+      return;
+    }
+
+    const dx = droppedX - prevTop.x;
+    const isPerfect = Math.abs(dx) <= PERFECT_TOLERANCE && droppedW === prevTop.width;
+
+    let placedX, placedW;
+    if (isPerfect) {
+      // perfect: snap to previous x, preserve width (no shrink)
+      placedX = prevTop.x;
+      placedW = prevTop.width;
+      perfects++;
+      perfectChain++;
+      score += STACK_POINTS + PERFECT_BONUS;
+
+      // cut off any tiny overhang (the ≤5px misalignment) — visually negligible, but keep block centered
+      if (newL < prevL) spawnCutPiece((newL + prevL) / 2, active.worldY, prevL - newL, hue, -1, false);
+      if (newR > prevR) spawnCutPiece((prevR + newR) / 2, active.worldY, newR - prevR, hue, 1, false);
+
+      // perfect feedback
+      flashScreen('#FBBF24', 0.35);
+      perfectFlashTimer = 380;
+      spawnPerfectParticles(placedX, active.worldY + BLOCK_H / 2, hue);
+      spawnFloatingText('PERFECT! +' + PERFECT_BONUS, placedX, active.worldY, '#FBBF24');
+      camera.shake = 4;
+      playSound('perfect', { chain: Math.min(perfectChain - 1, 12) });
+
+      if (perfectChain >= 3) {
+        spawnFloatingText(perfectChain + 'x CHAIN!', placedX, active.worldY - 24, '#F472B6');
+      }
+    } else {
+      // normal: cut overhang, shrink to overlap
+      placedX = (overlapL + overlapR) / 2;
+      placedW = overlap;
+      perfectChain = 0;
+      score += STACK_POINTS;
+
+      // cut pieces for the overhang
+      if (newL < overlapL) {
+        const cw = overlapL - newL;
+        spawnCutPiece((newL + overlapL) / 2, active.worldY, cw, hue, -1, false);
+      }
+      if (newR > overlapR) {
+        const cw = newR - overlapR;
+        spawnCutPiece((overlapR + newR) / 2, active.worldY, cw, hue, 1, false);
+      }
+      camera.shake = 3;
+      playSound('cut');
+      playSound('land');
+    }
+
+    // add the placed block to the tower
+    const newTop = {
+      x: placedX,
+      width: placedW,
+      worldY: active.dropTargetY,
+      hue: hue,
+      perfect: isPerfect,
+      landT: performance.now(),
+      isFoundation: false,
+    };
+    tower.push(newTop);
+    stacked++;
+
+    // camera target follows new top
+    camera.targetY = newTop.worldY - TOWER_TOP_SCREEN_Y;
+
+    // small landing particles (dust)
+    spawnLandDust(placedX, newTop.worldY + BLOCK_H, placedW, hue);
+
+    updateHUD();
+
+    // check level cleared / win
+    if (!levelCleared && stacked >= level.target) {
+      levelCleared = true;
+      clearedFlashTimer = 1500;
+      flashScreen('#22C55E', 0.3);
+      spawnFloatingText('LEVEL CLEARED!', W / 2, camera.y + TOWER_TOP_SCREEN_Y - 30, '#4ADE80');
+      playSound('cleared');
+    }
+    if (levelCleared && stacked >= level.target + 5) {
+      // auto-win at 3 stars (exceed by 5)
+      playSound('win');
+      endLevel(true);
+      return;
+    }
+
+    // spawn next active block (after a tiny delay for visibility)
+    setTimeout(() => {
+      if (state === 'playing') spawnActiveBlock(false);
+    }, 60);
+  }
+
+  function endLevel(won) {
+    state = won ? 'won' : 'lost';
+
+    // update progress
+    const lvlData = progress.levels[currentLevel.id] || { best: 0, stars: 0 };
+    lvlData.best = Math.max(lvlData.best, stacked);
+    if (won) {
+      const exceed = stacked - currentLevel.target;
+      let stars = 1;
+      if (exceed >= 5) stars = 3;
+      else if (exceed >= 1) stars = 2;
+      lvlData.stars = Math.max(lvlData.stars, stars);
+      // unlock next
+      if (currentLevel.id < LEVELS.length) {
+        progress.unlocked = Math.max(progress.unlocked, currentLevel.id + 1);
+      }
+    }
+    progress.levels[currentLevel.id] = lvlData;
+    saveProgress(progress);
+
+    document.getElementById('pauseBtn').classList.remove('show');
+
+    // show modal after slight delay for impact
+    setTimeout(() => {
+      if (won) {
+        document.getElementById('winLevelName').textContent = 'Level ' + currentLevel.id + ' — ' + currentLevel.name;
+        const exceed = stacked - currentLevel.target;
+        let stars = 1;
+        if (exceed >= 5) stars = 3;
+        else if (exceed >= 1) stars = 2;
+        document.getElementById('winStars').innerHTML = starsHtml(stars);
+        document.getElementById('winHeight').textContent = stacked;
+        document.getElementById('winPerfects').textContent = perfects;
+        document.getElementById('winScore').textContent = score;
+        const nextBtn = document.getElementById('winNext');
+        nextBtn.style.display = currentLevel.id < LEVELS.length ? '' : 'none';
+        document.getElementById('winModal').classList.add('show');
+      } else {
+        document.getElementById('loseLevelName').textContent = 'Level ' + currentLevel.id + ' — ' + currentLevel.name;
+        const shortBy = currentLevel.target - stacked;
+        document.getElementById('loseMsg').textContent = shortBy > 0
+          ? 'So close! ' + shortBy + ' block' + (shortBy === 1 ? '' : 's') + ' short of the target.'
+          : 'Your block missed the tower!';
+        document.getElementById('loseHeight').textContent = stacked;
+        document.getElementById('losePerfects').textContent = perfects;
+        document.getElementById('loseScore').textContent = score;
+        document.getElementById('loseModal').classList.add('show');
+      }
+    }, won ? 600 : 700);
+  }
+
+  function starsHtml(n) {
+    let s = '';
+    for (let i = 0; i < 3; i++) s += (i < n) ? '★' : '<span class="s-off">★</span>';
+    return s;
+  }
+
+  // ============================================================
+  //  PARTICLES & EFFECTS
+  // ============================================================
+  function spawnCutPiece(cx, worldYTop, w, hue, side, isWhole) {
+    const piece = {
+      x: cx,
+      worldY: worldYTop,
+      width: Math.max(2, w),
+      hue: hue,
+      vx: side * rand(80, 160) + (side === 0 ? rand(-60, 60) : 0),
+      vy: -rand(40, 120),
+      rot: 0,
+      vrot: rand(-6, 6),
+      life: CUT_LIFETIME,
+      maxLife: CUT_LIFETIME,
+      isWhole: isWhole,
+    };
+    cutPieces.push(piece);
+  }
+
+  function spawnPerfectParticles(worldX, worldY, hue) {
+    for (let i = 0; i < 14; i++) {
+      const ang = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
+      const speed = rand(80, 220);
+      particles.push({
+        x: worldX,
+        y: worldY,
+        vx: Math.cos(ang) * speed,
+        vy: Math.sin(ang) * speed - 60,
+        life: 700,
+        maxLife: 700,
+        r: rand(2, 4),
+        color: i % 2 === 0 ? '#FBBF24' : '#FEF3C7',
+        gravity: 600,
+      });
+    }
+    // sparkles
+    for (let i = 0; i < 6; i++) {
+      particles.push({
+        x: worldX + rand(-30, 30),
+        y: worldY + rand(-10, 10),
+        vx: rand(-40, 40),
+        vy: rand(-80, -20),
+        life: 600,
+        maxLife: 600,
+        r: rand(1, 2.5),
+        color: '#FFFFFF',
+        gravity: 300,
+        sparkle: true,
+      });
+    }
+  }
+
+  function spawnLandDust(worldX, worldYBottom, w, hue) {
+    const n = Math.min(8, Math.max(3, Math.floor(w / 20)));
+    for (let i = 0; i < n; i++) {
+      const side = (i % 2 === 0) ? -1 : 1;
+      particles.push({
+        x: worldX + side * rand(0, w / 2),
+        y: worldYBottom,
+        vx: side * rand(40, 120),
+        vy: -rand(20, 80),
+        life: 380,
+        maxLife: 380,
+        r: rand(1.5, 3),
+        color: hsl(hue, 30, 70, 0.7),
+        gravity: 700,
+      });
+    }
+  }
+
+  function spawnFloatingText(text, worldX, worldY, color) {
+    floatingTexts.push({
+      text: text,
+      x: worldX,
+      y: worldY,
+      worldY: worldY,
+      life: 1100,
+      maxLife: 1100,
+      color: color || '#FFFFFF',
+    });
+  }
+
+  function flashScreen(color, alpha) {
+    flashColor = color;
+    flashAlpha = Math.max(flashAlpha, alpha);
+  }
+
+  // ============================================================
+  //  HUD UPDATE
+  // ============================================================
+  function updateHUD() {
+    document.getElementById('hudHeight').textContent = stacked;
+    document.getElementById('hudPerfect').textContent = perfects;
+    document.getElementById('hudScore').textContent = score;
+    const lvl = currentLevel;
+    const pct = lvl ? clamp(stacked / lvl.target, 0, 1) * 100 : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    const pStat = document.getElementById('hudPerfectStat');
+    if (perfects > 0) pStat.classList.add('good'); else pStat.classList.remove('good');
+  }
+
+  // ============================================================
+  //  UPDATE LOOP
+  // ============================================================
+  function update(dt) {
+    // intro countdown
+    if (state === 'intro') {
+      introTimer -= dt * 1000;
+      if (introTimer <= 0) {
+        document.getElementById('levelIntro').classList.add('fade');
+        setTimeout(() => document.getElementById('levelIntro').classList.remove('show', 'fade'), 300);
+        state = 'playing';
+        lastTime = performance.now();
+      }
+      // still update camera/stars for ambience
+      updateAmbient(dt);
+      return;
+    }
+    if (state !== 'playing') {
+      updateAmbient(dt);
+      return;
+    }
+
+    // active block movement
+    if (!active.dropping) {
+      // slide horizontally — ping-pong
+      const minX = SIDE_MARGIN + active.width / 2;
+      const maxX = W - SIDE_MARGIN - active.width / 2;
+      active.x += active.vx * dt;
+      if (active.x <= minX) { active.x = minX; active.vx = Math.abs(active.vx); }
+      else if (active.x >= maxX) { active.x = maxX; active.vx = -Math.abs(active.vx); }
+      // active block worldY tracks camera so its screen pos stays put
+      active.worldY = camera.y + ACTIVE_BLOCK_SCREEN_Y;
+    } else {
+      // falling — apply gravity
+      active.vy += DROP_GRAVITY * dt;
+      active.worldY += active.vy * dt;
+      // stretch effect: vertical stretch proportional to vy
+      active.stretch = clamp(active.vy / 4000, 0, 0.35);
+      // landed?
+      if (active.worldY >= active.dropTargetY) {
+        active.worldY = active.dropTargetY;
+        active.dropping = false;
+        active.stretch = 0;
+        resolveDrop();
+      }
+    }
+
+    // camera follow (smooth)
+    camera.y = lerp(camera.y, camera.targetY, CAMERA_LERP);
+    camera.shake = Math.max(0, camera.shake - dt * 60);
+
+    // cut pieces
+    for (let i = cutPieces.length - 1; i >= 0; i--) {
+      const p = cutPieces[i];
+      p.vy += CUT_GRAVITY * dt;
+      p.x += p.vx * dt;
+      p.worldY += p.vy * dt;
+      p.rot += p.vrot * dt;
+      p.life -= dt * 1000;
+      if (p.life <= 0) cutPieces.splice(i, 1);
+    }
+
+    // particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.vy += p.gravity * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt * 1000;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+
+    // floating texts
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+      const t = floatingTexts[i];
+      t.worldY -= 35 * dt;  // drift up in world space
+      t.life -= dt * 1000;
+      if (t.life <= 0) floatingTexts.splice(i, 1);
+    }
+
+    // flash timers
+    if (flashAlpha > 0) flashAlpha = Math.max(0, flashAlpha - dt * 1.5);
+    if (perfectFlashTimer > 0) perfectFlashTimer -= dt * 1000;
+    if (clearedFlashTimer > 0) clearedFlashTimer -= dt * 1000;
+
+    updateAmbient(dt);
+  }
+
+  function updateAmbient(dt) {
+    // bg stars twinkle
+    for (const s of bgStars) {
+      s.tw += dt * s.tws;
+    }
+  }
+
+  // ============================================================
+  //  RENDER
+  // ============================================================
+  function render() {
+    // background gradient
+    const hueNow = currentLevel ? blockHue(currentLevel, stacked) : 0;
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#0B1120');
+    grad.addColorStop(0.5, '#0F172A');
+    grad.addColorStop(1, '#111827');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // subtle hue glow at top
+    const glowGrad = ctx.createRadialGradient(W / 2, -100, 50, W / 2, -100, Math.max(W, H) * 0.7);
+    glowGrad.addColorStop(0, hsl(hueNow, 70, 35, 0.22));
+    glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // bg stars
+    for (const s of bgStars) {
+      const a = s.a * (0.6 + 0.4 * Math.sin(s.tw));
+      ctx.fillStyle = 'rgba(241, 245, 249, ' + a.toFixed(3) + ')';
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // camera shake
+    const shakeX = camera.shake > 0 ? (Math.random() - 0.5) * camera.shake : 0;
+    const shakeY = camera.shake > 0 ? (Math.random() - 0.5) * camera.shake : 0;
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    // tower
+    renderTower();
+
+    // cut pieces (below active block, above tower in z)
+    renderCutPieces();
+
+    // active block
+    if (state === 'playing' || state === 'intro' || state === 'paused') {
+      renderActiveBlock();
+    }
+
+    // particles
+    renderParticles();
+
+    // floating texts
+    renderFloatingTexts();
+
+    ctx.restore();
+
+    // full-screen flash overlay
+    if (flashAlpha > 0.001) {
+      ctx.fillStyle = flashColor;
+      ctx.globalAlpha = flashAlpha;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
+
+    // "level cleared" banner (in-world-ish)
+    if (clearedFlashTimer > 0) {
+      const a = clamp(clearedFlashTimer / 1500, 0, 1);
+      const yC = TOWER_TOP_SCREEN_Y - 60;
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.font = '800 22px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#4ADE80';
+      ctx.shadowColor = 'rgba(74, 222, 128, 0.7)';
+      ctx.shadowBlur = 14;
+      ctx.fillText('LEVEL CLEARED — KEEP STACKING!', W / 2, yC);
+      ctx.restore();
+    }
+  }
+
+  function renderTower() {
+    const topBlock = tower[tower.length - 1];
+    if (!topBlock) return;
+    // only render blocks visible on screen
+    for (let i = 0; i < tower.length; i++) {
+      const b = tower[i];
+      const screenYTop = b.worldY - camera.y;
+      const screenYBot = screenYTop + BLOCK_H;
+      if (screenYBot < -10 || screenYTop > H + 10) continue;
+      renderBlock(b.x, screenYTop, b.width, BLOCK_H, b.hue, b.perfect, b.isFoundation, b.landT);
+    }
+    // ready glow on the top block when active is near alignment
+    if (state === 'playing' && !active.dropping) {
+      const dx = Math.abs(active.x - topBlock.x);
+      const closeness = clamp(1 - dx / 80, 0, 1);
+      if (closeness > 0.05) {
+        const yTop = topBlock.worldY - camera.y;
+        ctx.save();
+        ctx.globalAlpha = closeness * 0.5;
+        ctx.fillStyle = '#FBBF24';
+        ctx.shadowColor = '#FBBF24';
+        ctx.shadowBlur = 16;
+        roundRect(ctx, topBlock.x - topBlock.width / 2 - 3, yTop - 3, topBlock.width + 6, BLOCK_H + 6, 5);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  function renderBlock(cx, screenYTop, w, h, hue, perfect, isFoundation, landT) {
+    if (w < 0.5) return;
+    const x = cx - w / 2;
+    const y = screenYTop;
+    // landing squash animation
+    let sx = 1, sy = 1;
+    if (landT) {
+      const t = (performance.now() - landT) / 220;
+      if (t < 1) {
+        const k = Math.sin(t * Math.PI) * 0.12;
+        sx = 1 + k;
+        sy = 1 - k * 0.6;
+      }
+    }
+    const ww = w * sx;
+    const hh = h * sy;
+    const xx = cx - ww / 2;
+    const yy = y + (h - hh);
+
+    let sat = 65, light = 55;
+    if (isFoundation) { sat = 12; light = 22; }
+    if (perfect && !isFoundation) { sat = 75; light = 58; }
+
+    // body
+    const grad = ctx.createLinearGradient(0, yy, 0, yy + hh);
+    grad.addColorStop(0, hsl(hue, sat, light + 12));
+    grad.addColorStop(0.5, hsl(hue, sat, light));
+    grad.addColorStop(1, hsl(hue, sat, light - 10));
+    ctx.fillStyle = grad;
+    roundRect(ctx, xx, yy, ww, hh, 3);
+    ctx.fill();
+
+    // top highlight (3D)
+    ctx.fillStyle = hsl(hue, sat, Math.min(85, light + 22), 0.85);
+    roundRect(ctx, xx + 1, yy + 1, ww - 2, 3, 2);
+    ctx.fill();
+
+    // bottom shadow
+    ctx.fillStyle = hsl(hue, sat, Math.max(8, light - 18), 0.6);
+    ctx.fillRect(xx + 1, yy + hh - 2, ww - 2, 1);
+
+    // perfect ring
+    if (perfect && !isFoundation) {
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.9)';
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, xx + 0.5, yy + 0.5, ww - 1, hh - 1, 3);
+      ctx.stroke();
+    }
+
+    // foundation stripes
+    if (isFoundation) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < ww; i += 14) {
+        ctx.beginPath();
+        ctx.moveTo(xx + i, yy + 2);
+        ctx.lineTo(xx + i + 8, yy + hh - 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  function renderActiveBlock() {
+    const screenY = active.worldY - camera.y;
+    const stretch = active.stretch;
+    const sx = 1 - stretch * 0.35;
+    const sy = 1 + stretch;
+    const w = active.width * sx;
+    const h = BLOCK_H * sy;
+    const x = active.x - w / 2;
+    const y = screenY + (BLOCK_H - h) / 2;  // anchor to center
+
+    const hue = active.hue;
+    const sat = 70, light = 58;
+
+    // motion blur trail when sliding
+    if (!active.dropping) {
+      ctx.save();
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = hsl(hue, sat, light);
+      const trailOff = -active.vx * 0.012;
+      roundRect(ctx, x + trailOff, y, w, h, 3);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // body
+    const grad = ctx.createLinearGradient(0, y, 0, y + h);
+    grad.addColorStop(0, hsl(hue, sat, light + 14));
+    grad.addColorStop(0.5, hsl(hue, sat, light));
+    grad.addColorStop(1, hsl(hue, sat, light - 10));
+    ctx.fillStyle = grad;
+    roundRect(ctx, x, y, w, h, 3);
+    ctx.fill();
+
+    // top highlight
+    ctx.fillStyle = hsl(hue, sat, Math.min(85, light + 22), 0.9);
+    roundRect(ctx, x + 1, y + 1, w - 2, 3, 2);
+    ctx.fill();
+
+    // perfect flash overlay
+    if (perfectFlashTimer > 0) {
+      const a = clamp(perfectFlashTimer / 380, 0, 1);
+      ctx.fillStyle = 'rgba(251, 191, 36, ' + (a * 0.55) + ')';
+      roundRect(ctx, x, y, w, h, 3);
+      ctx.fill();
+    }
+  }
+
+  function renderCutPieces() {
+    for (const p of cutPieces) {
+      const a = clamp(p.life / p.maxLife, 0, 1);
+      const screenY = p.worldY - camera.y;
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate(p.x, screenY + BLOCK_H / 2);
+      ctx.rotate(p.rot);
+      const w = p.width;
+      const h = BLOCK_H;
+      const x = -w / 2;
+      const y = -h / 2;
+      const grad = ctx.createLinearGradient(0, y, 0, y + h);
+      grad.addColorStop(0, hsl(p.hue, 65, 60));
+      grad.addColorStop(1, hsl(p.hue, 65, 40));
+      ctx.fillStyle = grad;
+      roundRect(ctx, x, y, w, h, 3);
+      ctx.fill();
+      ctx.fillStyle = hsl(p.hue, 65, 75, 0.8);
+      roundRect(ctx, x + 1, y + 1, Math.max(0, w - 2), 3, 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function renderParticles() {
+    for (const p of particles) {
+      const screenY = p.y - camera.y;
+      const a = clamp(p.life / p.maxLife, 0, 1);
+      ctx.save();
+      ctx.globalAlpha = a;
+      if (p.sparkle) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = '#FBBF24';
+        ctx.shadowBlur = 6;
+      } else {
+        ctx.fillStyle = p.color;
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, screenY, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function renderFloatingTexts() {
+    for (const t of floatingTexts) {
+      const screenY = t.worldY - camera.y;
+      const a = clamp(t.life / t.maxLife, 0, 1);
+      const scale = 1 + (1 - a) * 0.2;
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate(t.x, screenY);
+      ctx.scale(scale, scale);
+      ctx.font = '800 16px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+      ctx.strokeText(t.text, 0, 0);
+      ctx.fillStyle = t.color;
+      ctx.fillText(t.text, 0, 0);
+      ctx.restore();
+    }
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    if (r < 0) r = 0;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // ============================================================
+  //  MAIN LOOP
+  // ============================================================
+  function frame(now) {
+    let dt = (now - lastTime) / 1000;
+    if (dt > 0.05) dt = 0.05;  // clamp big gaps (tab switch)
+    lastTime = now;
+    update(dt);
+    render();
+    requestAnimationFrame(frame);
+  }
+
+  // ============================================================
+  //  LEVEL PICKER
+  // ============================================================
+  function renderLevelPicker() {
+    const grid = document.getElementById('levelsGrid');
+    grid.innerHTML = '';
+    for (const lvl of LEVELS) {
+      const unlocked = progress.unlocked >= lvl.id;
+      const data = progress.levels[lvl.id] || { best: 0, stars: 0 };
+      const card = document.createElement('div');
+      card.className = 'level-card' + (unlocked ? '' : ' locked');
+      card.innerHTML =
+        '<div class="num">' + lvl.id + '</div>' +
+        '<div class="name">' + escapeHtml(lvl.name) + '</div>' +
+        '<div class="stars">' + starsSmallHtml(data.stars) + '</div>' +
+        '<div class="best">Best ' + data.best + '/' + lvl.target + '</div>' +
+        (unlocked ? '' : '<div class="lock">🔒</div>');
+      if (unlocked) {
+        card.addEventListener('click', () => {
+          playSound('click');
+          document.getElementById('levelPicker').classList.remove('show');
+          startLevel(lvl.id);
+        });
+      }
+      grid.appendChild(card);
+    }
+  }
+  function starsSmallHtml(n) {
+    let s = '';
+    for (let i = 0; i < 3; i++) s += (i < n) ? '<span class="s-on">★</span>' : '<span class="s-off">★</span>';
+    return s;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
+
+  // ============================================================
+  //  EVENT WIRING
+  // ============================================================
+  function showLevelPicker() {
+    document.getElementById('winModal').classList.remove('show');
+    document.getElementById('loseModal').classList.remove('show');
+    document.getElementById('pauseModal').classList.remove('show');
+    document.getElementById('pauseBtn').classList.remove('show');
+    document.getElementById('tapHint').classList.remove('show');
+    state = 'menu';
+    renderLevelPicker();
+    document.getElementById('levelPicker').classList.add('show');
+  }
+
+  document.getElementById('muteBtn').addEventListener('click', () => {
+    muted = !muted;
+    saveMute();
+    document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    if (!muted) playSound('click');
+  });
+
+  document.getElementById('pauseBtn').addEventListener('click', () => {
+    playSound('click');
+    togglePause();
+  });
+  document.getElementById('pauseResume').addEventListener('click', () => {
+    playSound('click');
+    togglePause();
+  });
+  document.getElementById('pauseMenu').addEventListener('click', () => {
+    playSound('click');
+    document.getElementById('pauseModal').classList.remove('show');
+    showLevelPicker();
+  });
+
+  document.getElementById('tutorialStart').addEventListener('click', () => {
+    playSound('click');
+    document.getElementById('tutorial').classList.remove('show');
+    // mark tutorial seen so retries skip it
+    progress.tutorialSeen = true;
+    saveProgress(progress);
+    // show level intro briefly then begin
+    const intro = document.getElementById('levelIntro');
+    intro.classList.add('show');
+    intro.classList.remove('fade');
+    state = 'intro';
+    introTimer = 1100;
+    document.getElementById('tapHint').classList.add('show');
+  });
+
+  document.getElementById('winMenu').addEventListener('click', () => { playSound('click'); showLevelPicker(); });
+  document.getElementById('winRetry').addEventListener('click', () => {
+    playSound('click');
+    document.getElementById('winModal').classList.remove('show');
+    startLevel(currentLevel.id);
+  });
+  document.getElementById('winNext').addEventListener('click', () => {
+    playSound('click');
+    document.getElementById('winModal').classList.remove('show');
+    const nextId = currentLevel.id + 1;
+    if (nextId <= LEVELS.length) startLevel(nextId);
+    else showLevelPicker();
+  });
+
+  document.getElementById('loseMenu').addEventListener('click', () => { playSound('click'); showLevelPicker(); });
+  document.getElementById('loseRetry').addEventListener('click', () => {
+    playSound('click');
+    document.getElementById('loseModal').classList.remove('show');
+    startLevel(currentLevel.id);
+  });
+
+  document.getElementById('resetProgress').addEventListener('click', () => {
+    if (confirm('Reset all Stack Tower progress?')) {
+      progress = { unlocked: 1, levels: {} };
+      saveProgress(progress);
+      renderLevelPicker();
+      playSound('click');
+    }
+  });
+
+  // ============================================================
+  //  INIT
+  // ============================================================
+  function init() {
+    resize();
+    document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    showLevelPicker();
+    lastTime = performance.now();
+    requestAnimationFrame(frame);
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>
