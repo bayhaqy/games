@@ -96,11 +96,29 @@
   .mute-btn:active { transform: scale(0.94); }
 
   /* === Canvas stage === */
+  /* `main` is the area below the header. It centers the portrait playfield
+     and fills the leftover space with a darker letterbox background. */
   main {
     flex: 1 1 auto;
     position: relative;
     overflow: hidden;
     min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0f1f; /* darker than --bg for letterbox bars */
+  }
+  /* Portrait playfield constrained to a 9:16 aspect ratio. On wide screens
+     this produces a tall rectangle (e.g., ~571×1016 on 1920×1080 with a
+     64px header) centered horizontally with dark letterbox on the sides.
+     Mirrors the Tetris `.playfield-wrap { aspect-ratio: 1/2 }` pattern. */
+  .playfield-wrap {
+    position: relative;
+    height: 100%;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
   }
   canvas#game {
     display: block;
@@ -108,16 +126,14 @@
     height: 100%;
     touch-action: none;
   }
-  /* On wide screens, constrain the playfield to a portrait area and center it
-     so the game feels like a mobile arcade rather than a stretched canvas. */
-  @media (min-width: 768px) {
-    main {
-      max-width: 520px;
-      margin: 0 auto;
+  /* Mobile: drop the aspect-ratio constraint and let the game fill the
+     screen (matches Tetris's ≤720px full-screen behavior). */
+  @media (max-width: 720px) {
+    .playfield-wrap {
+      aspect-ratio: auto;
       width: 100%;
-      box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
-      border-left: 1px solid rgba(241, 245, 249, 0.06);
-      border-right: 1px solid rgba(241, 245, 249, 0.06);
+      height: 100%;
+      box-shadow: none;
     }
   }
 
@@ -517,6 +533,7 @@
     <button class="mute-btn" id="muteBtn" title="Mute" aria-label="Toggle sound">🔊</button>
   </header>
   <main>
+    <div class="playfield-wrap" id="playfieldWrap">
     <canvas id="game"></canvas>
 
     <!-- In-game HUD -->
@@ -556,6 +573,7 @@
       <div class="modal" id="resultModal">
         <!-- filled dynamically -->
       </div>
+    </div>
     </div>
   </main>
 </div>
@@ -616,7 +634,14 @@ let CW = 0, CH = 0;          // logical width/height
 let DPR = 1;
 
 function resize() {
-  const rect = canvas.getBoundingClientRect();
+  // The CSS on `.playfield-wrap` enforces a 9:16 portrait aspect-ratio on
+  // desktop (or full-screen on mobile ≤720px). The canvas fills the wrap
+  // (width:100%; height:100%), so its bounding rect already reflects the
+  // correct aspect-ratio-constrained dimensions. We read the wrap's rect
+  // (matching the Tetris pattern) and propagate it to the canvas pixel
+  // buffer (× DPR for crispness on retina displays).
+  const wrap = document.getElementById('playfieldWrap');
+  const rect = wrap.getBoundingClientRect();
   DPR = Math.min(window.devicePixelRatio || 1, 2);
   CW = Math.max(320, Math.floor(rect.width));
   CH = Math.max(360, Math.floor(rect.height));
