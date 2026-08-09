@@ -97,29 +97,38 @@
     margin-bottom: 2rem;
     position: relative;
   }
+  /* Theme toggle (footer) */
   .theme-toggle-portal {
-    position: absolute;
-    top: 1rem;
-    right: 1.25rem;
-    width: 38px;
-    height: 38px;
-    border: 1px solid var(--chip-border);
-    background: var(--chip-bg);
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--fg);
-    font-size: 18px;
-    line-height: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background .2s, border-color .2s, transform .15s;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    transition: background .2s, border-color .2s, color .2s, transform .15s;
   }
-  .theme-toggle-portal:hover { background: var(--chip-hover); transform: translateY(-1px); }
-  .theme-toggle-portal:active { transform: scale(0.94); }
+  .theme-toggle-portal:hover {
+    background: var(--chip-hover);
+    border-color: var(--accent);
+    color: var(--fg);
+    transform: translateY(-1px);
+  }
+  .theme-toggle-portal:active { transform: scale(0.96); }
+  .theme-toggle-portal .icon-sun,
+  .theme-toggle-portal .icon-moon { font-size: 14px; line-height: 1; }
+  .theme-toggle-portal .toggle-label { font-size: 0.78rem; font-weight: 600; }
   .theme-toggle-portal .icon-sun { display: none; }
-  .theme-toggle-portal .icon-moon { display: block; }
-  [data-theme="dark"] .theme-toggle-portal .icon-sun { display: block; }
+  .theme-toggle-portal .icon-moon { display: inline; }
+  [data-theme="dark"] .theme-toggle-portal .icon-sun { display: inline; }
   [data-theme="dark"] .theme-toggle-portal .icon-moon { display: none; }
   .site-eyebrow {
     display: inline-block;
@@ -347,8 +356,20 @@
   /* Footer */
   .site-footer {
     padding: 2rem 0 3rem;
-    text-align: center;
     border-top: 1px solid var(--header-border);
+  }
+  .site-footer .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+  }
+  .site-footer .footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-start;
   }
   .site-footer a {
     color: var(--muted);
@@ -360,7 +381,11 @@
   .site-footer .footer-text {
     color: var(--muted);
     font-size: 0.8rem;
-    margin-top: 0.5rem;
+    margin: 0;
+  }
+  @media (max-width: 540px) {
+    .site-footer .container { justify-content: center; text-align: center; }
+    .site-footer .footer-links { align-items: center; }
   }
 
   /* Responsive */
@@ -393,10 +418,6 @@
 </head>
 <body>
   <header class="site-header">
-    <button class="theme-toggle-portal" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
-      <span class="icon-moon">🌙</span>
-      <span class="icon-sun">☀️</span>
-    </button>
     <div class="container">
       <span class="site-eyebrow">Mini Games Collection</span>
       <h1 class="site-title">Bayhaqy <span class="accent">Arcade</span></h1>
@@ -425,8 +446,15 @@
 
   <footer class="site-footer">
     <div class="container">
-      <a href="https://bayhaqy.github.io/">← Back to portfolio</a>
-      <p class="footer-text">© 2026 Achmad Bayhaqy. Built with HTML5 Canvas.</p>
+      <div class="footer-links">
+        <a href="https://bayhaqy.github.io/">← Back to portfolio</a>
+        <p class="footer-text">© 2026 Achmad Bayhaqy. Built with HTML5 Canvas.</p>
+      </div>
+      <button class="theme-toggle-portal" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
+        <span class="icon-moon" aria-hidden="true">🌙</span>
+        <span class="icon-sun" aria-hidden="true">☀️</span>
+        <span class="toggle-label">Theme</span>
+      </button>
     </div>
   </footer>
 
