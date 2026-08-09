@@ -647,38 +647,50 @@
     .back-link { font-size: 12px; padding: 6px 8px; }
     .icon-btn { width: 36px; height: 36px; font-size: 14px; }
     .stage {
-      flex-direction: column;
-      gap: 6px;
-      padding: 6px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 4px;
+      padding: 4px;
     }
     .playfield-wrap {
-      height: auto;
-      flex: 1 1 auto;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      height: 100%;
       min-height: 0;
-      max-height: 100%;
-      width: auto;
+      width: 100%;
+      aspect-ratio: auto;
+      max-width: 520px;
+      margin: 0 auto;
+      overflow: hidden;
     }
-    /* Both sidebars go to the top on mobile, stacked compactly. */
+    canvas#game {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    /* Both sidebars share the top row, side by side */
     .sidebar {
       width: 100%;
       flex: 0 0 auto;
       flex-direction: row;
-      gap: 6px;
-      order: -1;
+      gap: 4px;
+      order: 0;
     }
-    .sidebar.right { order: -1; }
-    .sidebar .panel { flex: 1; padding: 6px; }
-    .sidebar .stats { flex-direction: row; gap: 4px; flex: 2; }
-    .sidebar .stat { flex: 1; padding: 4px 6px; flex-direction: column; align-items: center; gap: 1px; }
-    .sidebar .stat-label { font-size: 8px; }
-    .sidebar .stat-value { font-size: 13px; }
-    .objective-box { flex: 2; padding: 6px 8px; }
-    .obj-text { font-size: 10px; margin-bottom: 4px; }
-    .obj-stars { font-size: 12px; margin-top: 3px; }
-    .obj-numbers { font-size: 10px; }
-    .obj-numbers .cur { font-size: 12px; }
-    .finish-btn { padding: 6px; font-size: 10px; margin-top: 4px; }
-    .panel .label { font-size: 9px; margin-bottom: 3px; }
+    .sidebar.left { grid-column: 1; grid-row: 1; }
+    .sidebar.right { grid-column: 2; grid-row: 1; }
+    .sidebar .panel { flex: 0 0 auto; padding: 4px; min-width: 0; }
+    .sidebar .stats { flex-direction: row; gap: 3px; flex: 1; min-width: 0; }
+    .sidebar .stat { flex: 1; padding: 3px 4px; flex-direction: column; align-items: center; gap: 0; min-width: 0; }
+    .sidebar .stat-label { font-size: 7px; }
+    .sidebar .stat-value { font-size: 12px; }
+    .mini-canvas { height: 44px; width: auto; max-width: 100%; }
+    .objective-box { flex: 1; padding: 4px 6px; min-width: 0; }
+    .obj-text { font-size: 9px; margin-bottom: 2px; }
+    .obj-stars { font-size: 10px; margin-top: 2px; }
+    .obj-numbers { font-size: 9px; }
+    .obj-numbers .cur { font-size: 11px; }
+    .finish-btn { padding: 4px; font-size: 9px; margin-top: 2px; }
+    .panel .label { font-size: 8px; margin-bottom: 2px; }
     .mobile-controls { display: flex; }
     .levels-grid { grid-template-columns: repeat(2, 1fr); }
     .modal { padding: 18px 14px; }
@@ -1520,8 +1532,8 @@ function resizeCanvas() {
   let cellByH = Math.floor(availH / ROWS);
   let cellByW = Math.floor(availW / COLS);
   let cell = Math.max(8, Math.min(cellByH, cellByW));
-  // Cap for very tall screens
-  cell = Math.min(cell, 36);
+  // Cap for very wide screens (prevents huge cells on desktop). 80px allows full use of tall mobile screens.
+  cell = Math.min(cell, 80);
   const finalW = cell * COLS;
   const finalH = cell * ROWS;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
