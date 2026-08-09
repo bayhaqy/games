@@ -160,11 +160,19 @@
     min-height: 0;
   }
   .board {
-    --board-size: min(94vw, 580px, 82vh);
+    /* Proportional square (1:1), centered with letterbox — mirrors the
+       Tetris .playfield-wrap pattern. JS resizeBoard() overrides
+       --board-size in px to fit the available board-wrap area; this CSS
+       fallback keeps a sane square before/without JS. The old 580px cap
+       that left the board tiny on desktop is removed. */
+    --board-size: min(94vw, 82vh);
     --gap: clamp(8px, 1.6vw, 14px);
     --cell: calc((var(--board-size) - 5 * var(--gap)) / 4);
     width: var(--board-size);
     height: var(--board-size);
+    aspect-ratio: 1 / 1;
+    max-width: 100%;
+    max-height: 100%;
     position: relative;
     background: var(--panel);
     border-radius: 14px;
@@ -599,6 +607,14 @@
   .toast.hidden { display: none; }
 
   /* === Responsive === */
+  /* Mobile (<=720px): let the board fill the available viewport.
+     Square is still enforced by aspect-ratio + JS resizeBoard(),
+     mirroring the Tetris <=720px full-screen allowance. */
+  @media (max-width: 720px) {
+    .board-wrap { padding: 4px; }
+    .stats-bar { padding: 8px 8px 4px; gap: 6px; }
+    .controls-hint { padding: 4px 12px 8px; font-size: 11px; }
+  }
   @media (max-width: 389px) {
     .back-link { font-size: 12px; padding: 6px 8px; }
     .game-title { font-size: 16px; }
@@ -989,6 +1005,11 @@ function startLevel(levelId) {
 function showView(name) {
   dom.menuView.classList.toggle('hidden', name !== 'menu');
   dom.gameView.classList.toggle('hidden', name !== 'game');
+  if (name === 'game') {
+    // Defer to next frame so layout settles after un-hiding the view
+    // (the wrap reports 0 size while display:none). Tetris pattern.
+    requestAnimationFrame(resizeBoard);
+  }
 }
 
 function updateStats() {
@@ -1496,6 +1517,25 @@ function resetProgress() {
 }
 
 // ============================================================
+// Layout — proportional square board (mirrors Tetris resizeCanvas)
+// ============================================================
+function resizeBoard() {
+  const wrap = dom.board.parentElement; // .board-wrap
+  if (!wrap) return;
+  const cs = getComputedStyle(wrap);
+  const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+  const rect = wrap.getBoundingClientRect();
+  const availW = rect.width - padX;
+  const availH = rect.height - padY;
+  if (availW <= 0 || availH <= 0) return; // view is hidden
+  // Square board: pick the smaller available dimension so it always fits
+  // with dark letterbox on the longer axis.
+  const size = Math.max(160, Math.floor(Math.min(availW, availH)));
+  dom.board.style.setProperty('--board-size', size + 'px');
+}
+
+// ============================================================
 // Init
 // ============================================================
 function init() {
@@ -1504,6 +1544,8 @@ function init() {
 
   // Input listeners
   document.addEventListener('keydown', handleKey);
+  window.addEventListener('resize', resizeBoard);
+  window.addEventListener('orientationchange', resizeBoard);
   dom.board.addEventListener('touchstart', onTouchStart, { passive: false });
   dom.board.addEventListener('touchmove', onTouchMove, { passive: false });
   dom.board.addEventListener('touchend', onTouchEnd);
