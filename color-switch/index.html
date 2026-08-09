@@ -110,6 +110,24 @@
     position: relative;
     overflow: hidden;
     min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Playfield wrap — centered portrait 9:16 rectangle on desktop (letterbox
+     on left/right), full-screen on mobile. Mirrors the Tetris .playfield-wrap
+     pattern but with a 9:16 portrait ratio suited to vertical scrolling. */
+  .playfield-wrap {
+    position: relative;
+    height: 100%;
+    max-height: 100vh;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
+    border-left: 1px solid rgba(241, 245, 249, 0.06);
+    border-right: 1px solid rgba(241, 245, 249, 0.06);
   }
   canvas#game {
     display: block;
@@ -117,15 +135,16 @@
     height: 100%;
     touch-action: none;
   }
-  /* On wide screens, constrain the playfield to a portrait area and center it. */
-  @media (min-width: 768px) {
-    main {
-      max-width: 540px;
-      margin: 0 auto;
+  /* Mobile: allow full-screen usage, drop the aspect-ratio constraint. */
+  @media (max-width: 720px) {
+    .playfield-wrap {
+      aspect-ratio: auto;
       width: 100%;
-      box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
-      border-left: 1px solid rgba(241, 245, 249, 0.06);
-      border-right: 1px solid rgba(241, 245, 249, 0.06);
+      height: 100%;
+      max-height: none;
+      box-shadow: none;
+      border-left: none;
+      border-right: none;
     }
   }
 
@@ -504,21 +523,23 @@
     <button class="mute-btn" id="muteBtn" aria-label="Toggle sound">🔊</button>
   </header>
   <main>
-    <canvas id="game"></canvas>
-    <div class="color-indicator" id="colorIndicator" style="display:none;">
-      <span class="color-dot" id="colorDot"></span>
-      <span id="colorName">RED</span>
-    </div>
-    <div class="hud" id="hud" style="display:none;">
-      <div class="score-big" id="scoreBig">0</div>
-      <div class="score-sub">
-        <span id="levelBadge">LVL 1</span>
-        <span class="sep">·</span>
-        <span id="targetBadge">0 / 5</span>
+    <div class="playfield-wrap" id="playfieldWrap">
+      <canvas id="game"></canvas>
+      <div class="color-indicator" id="colorIndicator" style="display:none;">
+        <span class="color-dot" id="colorDot"></span>
+        <span id="colorName">RED</span>
       </div>
-    </div>
-    <div class="hud-buttons" id="hudButtons" style="display:none;">
-      <button class="hud-btn" id="pauseBtn" aria-label="Pause">⏸</button>
+      <div class="hud" id="hud" style="display:none;">
+        <div class="score-big" id="scoreBig">0</div>
+        <div class="score-sub">
+          <span id="levelBadge">LVL 1</span>
+          <span class="sep">·</span>
+          <span id="targetBadge">0 / 5</span>
+        </div>
+      </div>
+      <div class="hud-buttons" id="hudButtons" style="display:none;">
+        <button class="hud-btn" id="pauseBtn" aria-label="Pause">⏸</button>
+      </div>
     </div>
 
     <!-- Menu / Level picker -->
@@ -905,9 +926,15 @@ function setupCanvas() {
   resizeCanvas();
 }
 function resizeCanvas() {
-  const main = canvas.parentElement;
-  W = main.clientWidth;
-  H = main.clientHeight;
+  // The canvas lives inside .playfield-wrap, which CSS sizes to a 9:16 portrait
+  // rectangle on desktop (centered with left/right letterbox) and to full-screen
+  // on mobile (<=720px). We read the wrap's computed pixel dimensions so the
+  // game world (W x H) matches the visible canvas exactly, preserving the
+  // aspect ratio. (Mirrors the Tetris .playfield-wrap sizing pattern.)
+  const wrap = canvas.parentElement;
+  const rect = wrap.getBoundingClientRect();
+  W = Math.max(1, Math.floor(rect.width));
+  H = Math.max(1, Math.floor(rect.height));
   DPR = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.floor(W * DPR);
   canvas.height = Math.floor(H * DPR);
