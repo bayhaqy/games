@@ -117,6 +117,17 @@
     height: 100%;
     touch-action: none;
   }
+  /* On wide screens, constrain the playfield to a portrait area and center it. */
+  @media (min-width: 768px) {
+    main {
+      max-width: 540px;
+      margin: 0 auto;
+      width: 100%;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
+      border-left: 1px solid rgba(241, 245, 249, 0.06);
+      border-right: 1px solid rgba(241, 245, 249, 0.06);
+    }
+  }
 
   /* === In-game HUD === */
   .hud {
