@@ -19,7 +19,11 @@
   }
   #game-wrap {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0 auto;
     overflow: hidden;
   }
   canvas {
@@ -30,6 +34,16 @@
     cursor: grab;
   }
   canvas.dragging { cursor: grabbing; }
+  /* On wide screens, constrain the playfield so the slingshot does not feel
+     infinitely far from the pigs. Keep landscape aspect via max-width. */
+  @media (min-width: 1100px) {
+    #game-wrap {
+      max-width: 1100px;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.35);
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+      border-right: 1px solid rgba(0, 0, 0, 0.15);
+    }
+  }
 
   /* HUD top */
   .hud {
@@ -41,6 +55,16 @@
     padding: 14px 18px;
     pointer-events: none;
     z-index: 10;
+  }
+  /* On wide screens, keep HUD aligned with the centered canvas */
+  @media (min-width: 1100px) {
+    .hud {
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1100px;
+    }
   }
   .hud-left, .hud-right {
     display: flex;
@@ -304,8 +328,9 @@ let W = 0, H = 0, DPR = 1;
 
 function resize() {
   DPR = Math.min(window.devicePixelRatio || 1, 2);
-  W = window.innerWidth;
-  H = window.innerHeight;
+  const rect = canvas.getBoundingClientRect();
+  W = Math.max(320, Math.floor(rect.width));
+  H = Math.max(360, Math.floor(rect.height));
   canvas.width = W * DPR;
   canvas.height = H * DPR;
   canvas.style.width = W + 'px';
