@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0F172A" />
+<title>Gravity Flip — Bayhaqy Arcade</title>
+<meta name="description" content="Gravity Flip Runner — tap to flip gravity, dodge spikes and blocks, survive 10 levels of increasing chaos." />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0F172A;
+    --text: #F1F5F9;
+    --accent: #DC2626;
+    --muted: rgba(241, 245, 249, 0.6);
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  #game-wrap {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+  canvas#game {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    background: #0F172A;
+  }
+
+  /* === Top bar === */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 30;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .back-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 11px;
+    border-radius: 9px;
+    transition: color .15s, background .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .back-link:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+  .topbar .title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #818CF8, #EC4899, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mute-btn {
+    width: 36px; height: 36px;
+    border: 0;
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border-radius: 9px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mute-btn:hover { background: rgba(255,255,255,0.15); }
+  .mute-btn:active { transform: scale(0.95); }
+
+  /* === HUD === */
+  .hud {
+    position: fixed;
+    top: calc(46px + env(safe-area-inset-top, 0px) + 8px);
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    pointer-events: none;
+    z-index: 12;
+  }
+  .hud-left, .hud-right { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+  .hud-left { justify-content: flex-start; }
+  .stat {
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    padding: 6px 9px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    line-height: 1.1;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-label {
+    font-size: 8.5px;
+    opacity: 0.65;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 700;
+  }
+  .stat.warn { background: rgba(220, 38, 38, 0.85); border-color: rgba(255,255,255,0.2); }
+  .stat.good { background: rgba(34, 197, 94, 0.85); }
+
+  /* === Progress bar === */
+  .progress-bar {
+    position: fixed;
+    top: calc(46px + env(safe-area-inset-top, 0px) + 42px);
+    left: 12px; right: 12px;
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    z-index: 11;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #22C55E 0%, #FBBF24 60%, #DC2626 100%);
+    transition: width .12s linear;
+    border-radius: 3px;
+  }
+
+  /* === Pause button === */
+  .pause-btn {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 20px;
+    width: 46px; height: 46px;
+    border: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 12;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .pause-btn.show { display: inline-flex; }
+  .pause-btn:active { transform: scale(0.95); }
+
+  /* === Tap hint === */
+  .tap-hint {
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(220, 38, 38, 0.9);
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 12;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .tap-hint.show { opacity: 1; }
+  @keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.06); }
+  }
+
+  /* === Level intro === */
+  .level-intro {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    z-index: 25;
+    pointer-events: none;
+    background: rgba(15, 23, 42, 0.3);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .level-intro.show { display: flex; opacity: 1; }
+  .level-intro.fade { opacity: 0; }
+  .intro-num {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .intro-name {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #818CF8, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .intro-target {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* === Tutorial === */
+  .tutorial {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 35;
+    padding: 20px;
+  }
+  .tutorial.show { display: flex; }
+  .tutorial-inner {
+    background: linear-gradient(160deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(129, 140, 248, 0.4);
+    padding: 26px 22px;
+    border-radius: 18px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+  .tut-badge {
+    display: inline-block;
+    background: rgba(129, 140, 248, 0.18);
+    color: #A5B4FC;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .tutorial-inner h2 { font-size: 22px; margin-bottom: 14px; color: #E0E7FF; font-weight: 800; }
+  .tutorial-inner p { font-size: 13.5px; margin-bottom: 9px; line-height: 1.55; color: #C7D2FE; }
+  .tutorial-inner kbd {
+    background: rgba(255,255,255,0.1);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 11.5px;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-weight: 700;
+    color: #fff;
+  }
+  .tutorial-inner strong { color: #FBBF24; }
+
+  /* === Modals === */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  .modal.show { display: flex; }
+  .modal-inner {
+    background: linear-gradient(160deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 26px 22px;
+    border-radius: 20px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    margin: auto;
+  }
+  .modal-inner h1 {
+    font-size: 30px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #818CF8, #EC4899, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+  }
+  .modal-inner h2 { font-size: 22px; margin-bottom: 14px; font-weight: 800; }
+  .modal-inner .subtitle { color: var(--muted); margin-bottom: 22px; font-size: 13.5px; }
+  .win-badge, .lose-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .win-badge { background: rgba(34, 197, 94, 0.2); color: #4ADE80; }
+  .lose-badge { background: rgba(220, 38, 38, 0.2); color: #F87171; }
+  .lose-msg { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+
+  /* === Levels grid === */
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 9px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 420px) {
+    .levels-grid { grid-template-columns: repeat(5, 1fr); gap: 7px; }
+  }
+  @media (max-width: 360px) {
+    .levels-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  }
+  .level-card {
+    aspect-ratio: 1 / 1.18;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform .12s, background .15s, border .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card:not(.locked):hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
+  .level-card:not(.locked):active { transform: translateY(0); }
+  .level-card.locked { opacity: 0.55; cursor: not-allowed; }
+  .level-card .num { font-size: 22px; font-weight: 900; line-height: 1; }
+  .level-card .name { font-size: 9px; opacity: 0.7; margin-top: 3px; text-align: center; line-height: 1.1; font-weight: 600; letter-spacing: 0.02em; }
+  .level-card .stars { font-size: 10px; margin-top: 4px; letter-spacing: 1px; line-height: 1; }
+  .level-card .stars .s-on { color: #FBBF24; }
+  .level-card .stars .s-off { color: rgba(255,255,255,0.15); }
+  .level-card .lock { position: absolute; top: 4px; right: 5px; font-size: 10px; opacity: 0.6; }
+  .level-card .best { font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: 600; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 14px;
+    margin-bottom: 18px;
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .legend span { white-space: nowrap; }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 16px 0;
+    padding: 14px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .stats-row > div { display: flex; flex-direction: column; gap: 4px; }
+  .stats-row span { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .stats-row strong { font-size: 17px; font-weight: 800; }
+
+  .stars-big {
+    font-size: 38px;
+    letter-spacing: 6px;
+    margin: 6px 0 14px;
+    color: #FBBF24;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+    line-height: 1;
+  }
+  .stars-big .s-off { color: rgba(255,255,255,0.15); text-shadow: none; }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    border: 0;
+    padding: 11px 16px;
+    border-radius: 11px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .1s, background .15s;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+  }
+  .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.15); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #B91C1C; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* === Responsive tweaks === */
+  @media (max-width: 480px) {
+    .topbar .title { font-size: 13px; }
+    .stat { font-size: 11px; padding: 5px 8px; }
+    .stat-label { font-size: 8px; }
+    .modal-inner h1 { font-size: 26px; }
+    .modal-inner h2 { font-size: 20px; }
+    .intro-name { font-size: 30px; }
+    .level-card .num { font-size: 19px; }
+    .level-card .name { font-size: 8px; }
+    .level-card .stars { font-size: 9px; }
+    .level-card .best { font-size: 7.5px; }
+  }
+  @media (max-height: 580px) {
+    .hud { top: 50px; }
+    .progress-bar { top: 86px; }
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../" class="back-link" aria-label="Back to games">← Games</a>
+    <div class="title">Gravity Flip</div>
+    <button class="mute-btn" id="muteBtn" aria-label="Toggle sound">🔊</button>
+  </header>
+
+  <div id="game-wrap">
+    <canvas id="game"></canvas>
+
+    <div class="hud" id="hud">
+      <div class="hud-left">
+        <div class="stat"><span class="stat-label">LVL</span><span id="hudLevel">1</span></div>
+        <div class="stat" id="hudTimeStat"><span class="stat-label">TIME</span><span id="hudTime">0.0</span><span style="opacity:.5">/</span><span id="hudTarget">30</span>s</div>
+      </div>
+      <div class="hud-right">
+        <div class="stat"><span class="stat-label">COINS</span><span id="hudCoins">0</span><span style="opacity:.5">/</span><span id="hudCoinsTotal">0</span></div>
+        <div class="stat"><span class="stat-label">SCORE</span><span id="hudScore">0</span></div>
+      </div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <button class="pause-btn" id="pauseBtn" aria-label="Pause">⏸</button>
+
+    <div class="tap-hint" id="tapHint">TAP TO FLIP</div>
+
+    <div class="level-intro" id="levelIntro">
+      <div class="intro-num" id="introNum">LEVEL 1</div>
+      <div class="intro-name" id="introName">Awakening</div>
+      <div class="intro-target" id="introTarget">Survive 30 seconds</div>
+    </div>
+
+    <div class="tutorial" id="tutorial">
+      <div class="tutorial-inner">
+        <div class="tut-badge">TUTORIAL</div>
+        <h2>Level 1 — Awakening</h2>
+        <p>Tap, click, or press <kbd>Space</kbd> / <kbd>↑</kbd> to <strong>flip gravity</strong>.</p>
+        <p>The ball instantly switches between floor and ceiling. Time your flips to avoid spikes and blocks.</p>
+        <p>Collect <strong>golden coins</strong> for bonus score &amp; stars. Survive the target time to win!</p>
+        <button class="btn btn-primary" id="tutorialStart" style="margin-top:8px">Start Level</button>
+      </div>
+    </div>
+
+    <div class="modal" id="levelPicker">
+      <div class="modal-inner">
+        <h1>GRAVITY FLIP</h1>
+        <p class="subtitle">Flip gravity. Survive. Master 10 levels.</p>
+        <div class="levels-grid" id="levelsGrid"></div>
+        <div class="legend">
+          <span>★ Complete level</span>
+          <span>★★ Collect 50% coins</span>
+          <span>★★★ Collect 80% coins</span>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="resetProgress">Reset Progress</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="winModal">
+      <div class="modal-inner">
+        <div class="win-badge">LEVEL COMPLETE</div>
+        <h2 id="winLevelName">Level 1</h2>
+        <div class="stars-big" id="winStars">★★★</div>
+        <div class="stats-row">
+          <div><span>Time</span><strong id="winTime">0.0s</strong></div>
+          <div><span>Coins</span><strong id="winCoins">0/0</strong></div>
+          <div><span>Score</span><strong id="winScore">0</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="winMenu">Levels</button>
+          <button class="btn" id="winRetry">Retry</button>
+          <button class="btn btn-primary" id="winNext">Next Level →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="loseModal">
+      <div class="modal-inner">
+        <div class="lose-badge">GAME OVER</div>
+        <h2 id="loseLevelName">Level 1</h2>
+        <p class="lose-msg" id="loseMsg">You hit an obstacle!</p>
+        <div class="stats-row">
+          <div><span>Time</span><strong id="loseTime">0.0s</strong></div>
+          <div><span>Coins</span><strong id="loseCoins">0/0</strong></div>
+          <div><span>Score</span><strong id="loseScore">0</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="loseMenu">Levels</button>
+          <button class="btn btn-primary" id="loseRetry">Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="pauseModal">
+      <div class="modal-inner">
+        <h2>Paused</h2>
+        <p class="subtitle">Take a breath.</p>
+        <div class="modal-actions">
+          <button class="btn" id="pauseMenu">Levels</button>
+          <button class="btn btn-primary" id="pauseResume">Resume</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  "use strict";
+
+  // ============================================================
+  //  CONFIGURATION
+  // ============================================================
+  const SAVE_KEY = 'gravityflip_progress';
+  const MUTE_KEY = 'gravityflip_muted';
+  const ROT_DURATION = 200;          // ms rotation animation
+  const BALL_RADIUS = 14;
+  const SPIKE_W = 30;
+  const SPIKE_H = 36;
+  const FLOOR_THICKNESS = 28;
+  const CEILING_TOP = 80;            // top of playable area (below HUD)
+  const COIN_RADIUS = 11;
+  const SAFE_START = 2.6;            // seconds of safe zone at start
+  const SAFE_END = 1.4;              // seconds of safe zone at end
+  const TRAIL_LIFE = 220;            // ms
+  const FLIP_COOLDOWN = 90;          // ms between flips (anti-spam)
+
+  const LEVELS = [
+    { id: 1,  name: 'Awakening',  duration: 30,  speed: 200, density: 0.55, moving: false, narrow: false, palette: 'cool',    tutorial: true  },
+    { id: 2,  name: 'Velocity',   duration: 40,  speed: 240, density: 0.65, moving: false, narrow: false, palette: 'cool'    },
+    { id: 3,  name: 'Tidal',      duration: 50,  speed: 240, density: 0.75, moving: false, narrow: false, palette: 'teal'    },
+    { id: 4,  name: 'Surge',      duration: 60,  speed: 280, density: 0.82, moving: false, narrow: false, palette: 'teal'    },
+    { id: 5,  name: 'Pulse',      duration: 60,  speed: 280, density: 0.82, moving: true,  narrow: false, palette: 'warm'    },
+    { id: 6,  name: 'Pinch',      duration: 75,  speed: 280, density: 0.85, moving: false, narrow: true,  palette: 'warm'    },
+    { id: 7,  name: 'Storm',      duration: 90,  speed: 320, density: 0.88, moving: true,  narrow: false, palette: 'neon'    },
+    { id: 8,  name: 'Hyper',      duration: 90,  speed: 360, density: 0.92, moving: false, narrow: false, palette: 'neon'    },
+    { id: 9,  name: 'Abyss',      duration: 120, speed: 360, density: 0.95, moving: true,  narrow: true,  palette: 'gold'    },
+    { id: 10, name: 'Chaos',      duration: 180, speed: 400, density: 1.05, moving: true,  narrow: true,  palette: 'rainbow' },
+  ];
+
+  const PALETTES = {
+    cool:    { bg1:'#0F172A', bg2:'#1E1B4B', accent:'#818CF8', ball:'#A5B4FC', ballGlow:'#6366F1', ballDark:'#3730A3', coin:'#FBBF24', coinShine:'#FEF3C7', spike:'#EF4444', spikeDark:'#991B1B', block:'#475569', blockLight:'#64748B', surface:'#1E293B', surfaceHi:'#334155', text:'#F1F5F9' },
+    teal:    { bg1:'#042F2E', bg2:'#134E4A', accent:'#2DD4BF', ball:'#5EEAD4', ballGlow:'#14B8A6', ballDark:'#0F766E', coin:'#FBBF24', coinShine:'#FEF3C7', spike:'#F43F5E', spikeDark:'#9F1239', block:'#155E75', blockLight:'#22D3EE', surface:'#0E2A2A', surfaceHi:'#134E4A', text:'#ECFEFF' },
+    warm:    { bg1:'#1C1917', bg2:'#7C2D12', accent:'#FB923C', ball:'#FED7AA', ballGlow:'#F97316', ballDark:'#9A3412', coin:'#FBBF24', coinShine:'#FEF3C7', spike:'#DC2626', spikeDark:'#7F1D1D', block:'#7C2D12', blockLight:'#FB923C', surface:'#292524', surfaceHi:'#44403C', text:'#FFF7ED' },
+    neon:    { bg1:'#030712', bg2:'#4C0519', accent:'#EC4899', ball:'#F9A8D4', ballGlow:'#22C55E', ballDark:'#15803D', coin:'#FBBF24', coinShine:'#FEF3C7', spike:'#EF4444', spikeDark:'#7F1D1D', block:'#7F1D1D', blockLight:'#EC4899', surface:'#1F0510', surfaceHi:'#4C0519', text:'#FDF2F8' },
+    gold:    { bg1:'#000000', bg2:'#422006', accent:'#FBBF24', ball:'#FEF3C7', ballGlow:'#F59E0B', ballDark:'#78350F', coin:'#FBBF24', coinShine:'#FFFBEB', spike:'#DC2626', spikeDark:'#7F1D1D', block:'#451A03', blockLight:'#F59E0B', surface:'#1C1207', surfaceHi:'#422006', text:'#FEF3C7' },
+    rainbow: { bg1:'#0F172A', bg2:'#1E1B4B', accent:'#F472B6', ball:'#FFFFFF', ballGlow:'#F472B6', ballDark:'#7C3AED', coin:'#FBBF24', coinShine:'#FEF3C7', spike:'#EF4444', spikeDark:'#991B1B', block:'#475569', blockLight:'#94A3B8', surface:'#0F172A', surfaceHi:'#1E1B4B', text:'#F8FAFC' },
+  };
+
+  // ============================================================
+  //  STATE
+  // ============================================================
+  let state = 'menu';        // 'menu' | 'intro' | 'playing' | 'paused' | 'won' | 'lost'
+  let currentLevel = null;
+  let levelData = null;
+  let elapsed = 0;
+  let lastTime = performance.now();
+  let coinsCollected = 0;
+  let distance = 0;
+  let cameraX = 0;
+  let muted = false;
+  let particles = [];
+  let stars = [];
+  let flashAlpha = 0;
+  let firstFlipDone = false;
+  let lastFlipTime = -1000;
+  let introTimer = 0;
+  let hitStopUntil = 0;
+  let shakeUntil = 0;
+  let shakeMag = 0;
+
+  // canvas
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1;
+  let GRAVITY = 9000;
+
+  // ball
+  const ball = {
+    x: 100,
+    y: 0,
+    vy: 0,
+    radius: BALL_RADIUS,
+    gravityDir: 1,
+    rotation: 0,
+    rotFrom: 0,
+    rotTo: 0,
+    rotStart: -10000,
+    trail: [],
+    flipFlash: 0,
+  };
+
+  // ============================================================
+  //  SAVE / LOAD
+  // ============================================================
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (p && typeof p.unlocked === 'number' && p.levels) return p;
+      }
+    } catch (e) {}
+    return { unlocked: 1, levels: {} };
+  }
+  function saveProgress(p) {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(p)); } catch (e) {}
+  }
+  function loadMute() {
+    try { return localStorage.getItem(MUTE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function saveMute() {
+    try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {}
+  }
+  let progress = loadProgress();
+  muted = loadMute();
+
+  // ============================================================
+  //  SEEDED PRNG (deterministic layouts per level)
+  // ============================================================
+  function mulberry32(seed) {
+    let s = seed >>> 0;
+    return function() {
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // ============================================================
+  //  LEVEL LAYOUT GENERATION (deterministic, learnable)
+  // ============================================================
+  function generateLayout(level) {
+    const rng = mulberry32(level.id * 2654435761 % 4294967296);
+    const obstacles = [];
+    const coins = [];
+
+    const startSafe = SAFE_START;
+    const endT = level.duration - SAFE_END;
+    const baseInterval = 2.4 / level.density;
+    const difficulty = (t) => Math.min(1, t / level.duration);
+
+    let t = startSafe;
+
+    while (t < endT) {
+      const roll = rng();
+      const d = difficulty(t);
+      // Pattern weights shift with level features
+      const canMove = level.moving;
+      const canNarrow = level.narrow;
+
+      // Decide pattern
+      let pattern;
+      const r1 = rng();
+      if (canMove && r1 < 0.18 + d * 0.18) {
+        pattern = 'moving';
+      } else if (canNarrow && r1 < 0.36) {
+        pattern = 'alt-spikes';
+      } else if (roll < 0.22) {
+        pattern = 'floor-spike';
+      } else if (roll < 0.44) {
+        pattern = 'ceiling-spike';
+      } else if (roll < 0.62) {
+        pattern = 'both-spikes';
+      } else if (roll < 0.78) {
+        pattern = 'block-floor';
+      } else if (roll < 0.92) {
+        pattern = 'block-ceiling';
+      } else {
+        pattern = 'coin-arc';
+      }
+
+      switch (pattern) {
+        case 'floor-spike': {
+          const count = 1 + Math.floor(rng() * (1 + d * 2.2));
+          const spacing = 0.5;
+          for (let i = 0; i < count; i++) {
+            obstacles.push({ type: 'spike', surface: 'floor', t: t + i * spacing });
+          }
+          if (rng() < 0.55) {
+            const ccount = Math.min(count, 2);
+            for (let i = 0; i < ccount; i++) {
+              coins.push({ t: t + i * spacing + spacing * 0.5, surface: 'ceiling', collected: false });
+            }
+          }
+          t += baseInterval + count * spacing + 0.3;
+          break;
+        }
+        case 'ceiling-spike': {
+          const count = 1 + Math.floor(rng() * (1 + d * 2.2));
+          const spacing = 0.5;
+          for (let i = 0; i < count; i++) {
+            obstacles.push({ type: 'spike', surface: 'ceiling', t: t + i * spacing });
+          }
+          if (rng() < 0.55) {
+            const ccount = Math.min(count, 2);
+            for (let i = 0; i < ccount; i++) {
+              coins.push({ t: t + i * spacing + spacing * 0.5, surface: 'floor', collected: false });
+            }
+          }
+          t += baseInterval + count * spacing + 0.3;
+          break;
+        }
+        case 'both-spikes': {
+          // floor spike then ceiling spike shortly after — must flip then flip back
+          const gap = 0.85 - d * 0.2;
+          obstacles.push({ type: 'spike', surface: 'floor', t: t });
+          obstacles.push({ type: 'spike', surface: 'ceiling', t: t + gap });
+          // Reward coin in between (encourages well-timed double flip)
+          if (rng() < 0.7) {
+            coins.push({ t: t + gap * 0.5, surface: 'ceiling', collected: false });
+          }
+          t += baseInterval + gap + 0.6;
+          break;
+        }
+        case 'block-floor': {
+          // block on floor side — forces ceiling
+          const w = 50 + Math.floor(rng() * 30);
+          const h = 60 + Math.floor(rng() * 40);
+          obstacles.push({ type: 'block', surface: 'floor', t: t, w: w, h: h });
+          if (rng() < 0.6) {
+            coins.push({ t: t + 0.2, surface: 'ceiling', collected: false });
+          }
+          t += baseInterval + w / level.speed + 0.4;
+          break;
+        }
+        case 'block-ceiling': {
+          const w = 50 + Math.floor(rng() * 30);
+          const h = 60 + Math.floor(rng() * 40);
+          obstacles.push({ type: 'block', surface: 'ceiling', t: t, w: w, h: h });
+          if (rng() < 0.6) {
+            coins.push({ t: t + 0.2, surface: 'floor', collected: false });
+          }
+          t += baseInterval + w / level.speed + 0.4;
+          break;
+        }
+        case 'moving': {
+          // moving obstacle that sweeps vertically
+          const w = 50, h = 50;
+          const range = 110 + Math.floor(rng() * 60);
+          const period = 1.8 + rng() * 1.2;
+          obstacles.push({ type: 'moving', t: t, w: w, h: h, range: range, period: period, phase: rng() * Math.PI * 2 });
+          if (rng() < 0.5) {
+            coins.push({ t: t + 0.3, surface: rng() < 0.5 ? 'floor' : 'ceiling', collected: false });
+          }
+          t += baseInterval + 1.4;
+          break;
+        }
+        case 'alt-spikes': {
+          // rapid alternating spikes — narrow timing
+          const count = 3 + Math.floor(rng() * 3);
+          const spacing = 0.55 - d * 0.1;
+          for (let i = 0; i < count; i++) {
+            obstacles.push({ type: 'spike', surface: (i % 2 === 0) ? 'floor' : 'ceiling', t: t + i * spacing });
+          }
+          // coin reward for surviving
+          if (rng() < 0.5) {
+            coins.push({ t: t + count * spacing * 0.5, surface: 'floor', collected: false });
+          }
+          t += baseInterval + count * spacing + 0.5;
+          break;
+        }
+        case 'coin-arc': {
+          // arc of coins on alternating surfaces to encourage flips
+          const count = 4;
+          const spacing = 0.4;
+          for (let i = 0; i < count; i++) {
+            coins.push({ t: t + i * spacing, surface: (i % 2 === 0) ? 'floor' : 'ceiling', collected: false });
+          }
+          t += baseInterval + count * spacing + 0.3;
+          break;
+        }
+      }
+
+      // Tiny jitter to break perfect rhythm (still deterministic)
+      t += (rng() - 0.5) * 0.15;
+    }
+
+    return { obstacles, coins, totalCoins: coins.length };
+  }
+
+  // ============================================================
+  //  STARFIELD (parallax background)
+  // ============================================================
+  function regenerateStars() {
+    stars = [];
+    const count = Math.floor((W * H) / 9000);
+    const pal = currentPalette();
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 0.4 + Math.random() * 1.8,
+        depth: 0.2 + Math.random() * 0.8,
+        twinkle: Math.random() * Math.PI * 2,
+        color: Math.random() < 0.3 ? pal.accent : '#FFFFFF',
+      });
+    }
+  }
+
+  // ============================================================
+  //  GEOMETRY HELPERS
+  // ============================================================
+  function floorY() { return H - FLOOR_THICKNESS - ball.radius; }
+  function ceilingY() { return CEILING_TOP + ball.radius; }
+  function currentPalette() {
+    if (!currentLevel) return PALETTES.cool;
+    const pal = PALETTES[currentLevel.palette];
+    if (currentLevel.palette === 'rainbow') {
+      const t = performance.now() / 1000;
+      const hue = (t * 50) % 360;
+      return {
+        ...pal,
+        bg2: `hsl(${hue}, 65%, 22%)`,
+        accent: `hsl(${(hue + 60) % 360}, 85%, 65%)`,
+        ballGlow: `hsl(${(hue + 120) % 360}, 85%, 65%)`,
+        ballDark: `hsl(${(hue + 200) % 360}, 70%, 35%)`,
+        blockLight: `hsl(${(hue + 30) % 360}, 70%, 60%)`,
+      };
+    }
+    return pal;
+  }
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ball.x = Math.max(70, Math.min(W * 0.26, 220));
+    // gravity scaled so transit time stays ~0.32s regardless of screen height
+    const travel = (H - FLOOR_THICKNESS - CEILING_TOP) - 2 * ball.radius;
+    GRAVITY = Math.max(6000, Math.min(18000, 2 * Math.max(200, travel) / (0.32 * 0.32)));
+    if (state === 'menu') {
+      // keep ball centered for menu preview
+      ball.y = (CEILING_TOP + H - FLOOR_THICKNESS) / 2;
+    }
+    regenerateStars();
+  }
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
+  // ============================================================
+  //  AUDIO (Web Audio API SFX)
+  // ============================================================
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    }
+    return audioCtx;
+  }
+  function playSound(type) {
+    if (muted) return;
+    const ac = getAudioCtx();
+    if (!ac) return;
+    if (ac.state === 'suspended') ac.resume();
+    const now = ac.currentTime;
+
+    function tone(freq1, freq2, dur, type, vol) {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = type;
+      o.frequency.setValueAtTime(freq1, now);
+      o.frequency.exponentialRampToValueAtTime(Math.max(20, freq2), now + dur);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(vol, now + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.start(now); o.stop(now + dur + 0.02);
+    }
+
+    switch (type) {
+      case 'flip':
+        tone(900, 280, 0.16, 'sine', 0.13);
+        tone(1400, 500, 0.08, 'triangle', 0.05);
+        break;
+      case 'coin':
+        tone(880, 880, 0.05, 'square', 0.08);
+        setTimeout(() => { if (!muted) tone(1320, 1320, 0.1, 'square', 0.09); }, 55);
+        break;
+      case 'hit':
+        tone(220, 60, 0.32, 'sawtooth', 0.22);
+        tone(110, 40, 0.35, 'square', 0.16);
+        break;
+      case 'win':
+        [523, 659, 784, 1047, 1319].forEach((f, i) => {
+          setTimeout(() => { if (!muted) tone(f, f, 0.22, 'triangle', 0.13); }, i * 95);
+        });
+        break;
+      case 'lose':
+        [440, 330, 247, 165, 110].forEach((f, i) => {
+          setTimeout(() => { if (!muted) tone(f, f * 0.7, 0.28, 'sawtooth', 0.13); }, i * 110);
+        });
+        break;
+      case 'click':
+        tone(600, 600, 0.04, 'sine', 0.06);
+        break;
+    }
+  }
+
+  // ============================================================
+  //  INPUT
+  // ============================================================
+  function flipGravity() {
+    if (state !== 'playing') return;
+    const now = performance.now();
+    if (now - lastFlipTime < FLIP_COOLDOWN) return;
+    lastFlipTime = now;
+
+    ball.gravityDir *= -1;
+    // small initial velocity in new direction for snappy launch
+    ball.vy = ball.gravityDir * 180;
+    ball.rotFrom = ball.rotation;
+    ball.rotTo = ball.rotation + 180;
+    ball.rotStart = now;
+    ball.flipFlash = 1.0;
+    playSound('flip');
+
+    if (!firstFlipDone) {
+      firstFlipDone = true;
+      const hint = document.getElementById('tapHint');
+      hint.classList.remove('show');
+    }
+  }
+
+  function togglePause() {
+    if (state === 'playing') {
+      state = 'paused';
+      document.getElementById('pauseModal').classList.add('show');
+    } else if (state === 'paused') {
+      state = 'playing';
+      document.getElementById('pauseModal').classList.remove('show');
+      lastTime = performance.now();
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+      e.preventDefault();
+      flipGravity();
+    } else if (e.code === 'KeyP' || e.code === 'Escape') {
+      e.preventDefault();
+      togglePause();
+    }
+  });
+
+  canvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (state === 'playing') flipGravity();
+  });
+
+  // Pause when window loses focus
+  window.addEventListener('blur', () => {
+    if (state === 'playing') togglePause();
+  });
+
+  // ============================================================
+  //  COLLISION
+  // ============================================================
+  function circleRect(cx, cy, cr, rx, ry, rw, rh) {
+    const closestX = Math.max(rx, Math.min(cx, rx + rw));
+    const closestY = Math.max(ry, Math.min(cy, ry + rh));
+    const dx = cx - closestX;
+    const dy = cy - closestY;
+    return (dx * dx + dy * dy) < (cr * cr);
+  }
+
+  function getObstacleHitbox(ob) {
+    const obWorldX = ob.t * currentLevel.speed;
+    const obX = obWorldX - cameraX;
+    if (ob.type === 'spike') {
+      const w = SPIKE_W, h = SPIKE_H;
+      // shrink hitbox slightly so corners are forgiving
+      const sw = w * 0.74, sh = h * 0.78;
+      if (ob.surface === 'floor') {
+        return { x: obX - sw / 2, y: H - FLOOR_THICKNESS - sh, w: sw, h: sh };
+      } else {
+        return { x: obX - sw / 2, y: FLOOR_THICKNESS + (CEILING_TOP - FLOOR_THICKNESS), w: sw, h: sh };
+        // ceiling surface is at CEILING_TOP; spike hangs down from there
+      }
+    } else if (ob.type === 'block') {
+      const w = ob.w, h = ob.h;
+      if (ob.surface === 'floor') {
+        return { x: obX - w / 2, y: H - FLOOR_THICKNESS - h, w: w, h: h };
+      } else {
+        return { x: obX - w / 2, y: CEILING_TOP, w: w, h: h };
+      }
+    } else if (ob.type === 'moving') {
+      const w = ob.w, h = ob.h;
+      const cy = (CEILING_TOP + H - FLOOR_THICKNESS) / 2;
+      const phase = (elapsed / ob.period) * Math.PI * 2 + ob.phase;
+      const yPos = cy + Math.sin(phase) * ob.range;
+      return { x: obX - w / 2, y: yPos - h / 2, w: w, h: h };
+    }
+    return null;
+  }
+
+  // ============================================================
+  //  GAME LOOP
+  // ============================================================
+  function gameLoop(now) {
+    let dt = (now - lastTime) / 1000;
+    lastTime = now;
+    if (dt > 0.05) dt = 0.05;  // clamp big delta (tab switch)
+
+    // hit-stop on death
+    if (now < hitStopUntil) dt = 0;
+
+    if (state === 'playing') update(dt, now);
+    if (state === 'intro') {
+      introTimer -= dt;
+      if (introTimer <= 0) {
+        document.getElementById('levelIntro').classList.remove('show');
+        document.getElementById('levelIntro').classList.add('fade');
+        state = 'playing';
+        lastTime = performance.now();
+      }
+    }
+    if (particles.length) updateParticles(dt);
+    if (flashAlpha > 0) flashAlpha = Math.max(0, flashAlpha - dt * 2.5);
+    if (ball.flipFlash > 0) ball.flipFlash = Math.max(0, ball.flipFlash - dt * 5);
+
+    render(now);
+    requestAnimationFrame(gameLoop);
+  }
+
+  function update(dt, now) {
+    elapsed += dt;
+    distance += currentLevel.speed * dt;
+    cameraX = currentLevel.speed * elapsed;
+
+    // ball physics
+    ball.vy += ball.gravityDir * GRAVITY * dt;
+    ball.y += ball.vy * dt;
+    const fy = floorY();
+    const cy = ceilingY();
+    if (ball.y >= fy) {
+      ball.y = fy;
+      if (ball.vy > 0) ball.vy = 0;
+    } else if (ball.y <= cy) {
+      ball.y = cy;
+      if (ball.vy < 0) ball.vy = 0;
+    }
+
+    // rotation animation (ease-out cubic)
+    const rotElapsed = now - ball.rotStart;
+    if (rotElapsed < ROT_DURATION) {
+      const p = rotElapsed / ROT_DURATION;
+      const eased = 1 - Math.pow(1 - p, 3);
+      ball.rotation = ball.rotFrom + (ball.rotTo - ball.rotFrom) * eased;
+    } else {
+      ball.rotation = ball.rotTo;
+    }
+
+    // trail
+    ball.trail.push({ x: ball.x, y: ball.y, t: now });
+    while (ball.trail.length && now - ball.trail[0].t > TRAIL_LIFE) {
+      ball.trail.shift();
+    }
+
+    // collisions
+    for (const ob of levelData.obstacles) {
+      const obWorldX = ob.t * currentLevel.speed;
+      const obScreenX = obWorldX - cameraX;
+      if (obScreenX < -120 || obScreenX > W + 120) continue;
+      const hb = getObstacleHitbox(ob);
+      if (!hb) continue;
+      // use slightly smaller ball radius for forgiving collisions
+      if (circleRect(ball.x, ball.y, ball.radius * 0.86, hb.x, hb.y, hb.w, hb.h)) {
+        gameOver(ob);
+        return;
+      }
+    }
+
+    // coin collection
+    for (const c of levelData.coins) {
+      if (c.collected) continue;
+      const cWorldX = c.t * currentLevel.speed;
+      const cScreenX = cWorldX - cameraX;
+      if (cScreenX < -50 || cScreenX > W + 50) continue;
+      const cY = (c.surface === 'floor') ? floorY() : ceilingY();
+      const dx = ball.x - cScreenX;
+      const dy = ball.y - cY;
+      const rad = ball.radius + COIN_RADIUS;
+      if (dx * dx + dy * dy < rad * rad) {
+        c.collected = true;
+        coinsCollected++;
+        playSound('coin');
+        // sparkle particles
+        for (let i = 0; i < 8; i++) {
+          particles.push({
+            x: cScreenX, y: cY,
+            vx: (Math.random() - 0.5) * 200,
+            vy: (Math.random() - 0.5) * 200 - 50,
+            life: 0.6, maxLife: 0.6,
+            color: '#FBBF24',
+            size: 2 + Math.random() * 3,
+            gravity: 400,
+          });
+        }
+      }
+    }
+
+    // level complete?
+    if (elapsed >= currentLevel.duration) {
+      levelComplete();
+      return;
+    }
+
+    // HUD update
+    updateHUD();
+  }
+
+  function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life -= dt;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      p.vy += (p.gravity || 0) * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= 0.96;
+    }
+  }
+
+  function updateHUD() {
+    const remaining = Math.max(0, currentLevel.duration - elapsed);
+    document.getElementById('hudLevel').textContent = currentLevel.id;
+    document.getElementById('hudTime').textContent = elapsed.toFixed(1);
+    document.getElementById('hudTarget').textContent = currentLevel.duration;
+    document.getElementById('hudCoins').textContent = coinsCollected;
+    document.getElementById('hudCoinsTotal').textContent = levelData.totalCoins;
+    document.getElementById('hudScore').textContent = Math.floor(distance + coinsCollected * 50);
+    const pct = Math.min(100, (elapsed / currentLevel.duration) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    const timeStat = document.getElementById('hudTimeStat');
+    if (remaining < 5 && remaining > 0) timeStat.classList.add('warn');
+    else timeStat.classList.remove('warn');
+  }
+
+  // ============================================================
+  //  GAME STATE TRANSITIONS
+  // ============================================================
+  function startLevel(levelId) {
+    currentLevel = LEVELS.find(l => l.id === levelId);
+    if (!currentLevel) return;
+    levelData = generateLayout(currentLevel);
+    elapsed = 0;
+    distance = 0;
+    coinsCollected = 0;
+    cameraX = 0;
+    particles = [];
+    firstFlipDone = false;
+    flashAlpha = 0;
+    hitStopUntil = 0;
+
+    ball.gravityDir = 1;
+    ball.y = floorY();
+    ball.vy = 0;
+    ball.rotation = 0;
+    ball.rotFrom = 0;
+    ball.rotTo = 0;
+    ball.rotStart = -10000;
+    ball.trail = [];
+    ball.flipFlash = 0;
+
+    hideAllModals();
+    document.getElementById('pauseBtn').classList.add('show');
+    regenerateStars();
+
+    if (currentLevel.tutorial) {
+      document.getElementById('tutorial').classList.add('show');
+      state = 'paused';
+    } else {
+      // brief level intro
+      document.getElementById('introNum').textContent = 'LEVEL ' + currentLevel.id;
+      document.getElementById('introName').textContent = currentLevel.name;
+      document.getElementById('introTarget').textContent = 'Survive ' + currentLevel.duration + ' seconds';
+      const intro = document.getElementById('levelIntro');
+      intro.classList.remove('fade');
+      intro.classList.add('show');
+      introTimer = 1.6;
+      state = 'intro';
+    }
+
+    lastTime = performance.now();
+    // Show tap hint for level 1 only (after tutorial dismiss)
+    if (currentLevel.tutorial) {
+      // hint shown after tutorial start clicked
+    }
+  }
+
+  function levelComplete() {
+    state = 'won';
+    playSound('win');
+
+    const coinRatio = levelData.totalCoins > 0 ? coinsCollected / levelData.totalCoins : 1;
+    let stars = 1;
+    if (coinRatio >= 0.5) stars = 2;
+    if (coinRatio >= 0.8) stars = 3;
+
+    const prev = progress.levels[currentLevel.id] || { stars: 0, bestTime: 0, coins: 0 };
+    const newStars = Math.max(prev.stars || 0, stars);
+    const newBest = Math.max(prev.bestTime || 0, elapsed);
+    progress.levels[currentLevel.id] = {
+      completed: true,
+      bestTime: newBest,
+      stars: newStars,
+      coins: Math.max(prev.coins || 0, coinsCollected),
+      totalCoins: levelData.totalCoins,
+    };
+    if (currentLevel.id >= progress.unlocked && currentLevel.id < 10) {
+      progress.unlocked = currentLevel.id + 1;
+    }
+    saveProgress(progress);
+
+    // celebration particles
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: ball.x, y: ball.y,
+        vx: (Math.random() - 0.5) * 500,
+        vy: (Math.random() - 0.5) * 500 - 100,
+        life: 1.2, maxLife: 1.2,
+        color: ['#FBBF24', '#22C55E', '#818CF8', '#EC4899', '#FFFFFF'][Math.floor(Math.random() * 5)],
+        size: 3 + Math.random() * 4,
+        gravity: 300,
+      });
+    }
+
+    showWinModal(stars);
+  }
+
+  function gameOver(ob) {
+    state = 'lost';
+    hitStopUntil = performance.now() + 120;
+    shakeUntil = performance.now() + 350;
+    shakeMag = 14;
+    flashAlpha = 1.0;
+    playSound('hit');
+    setTimeout(() => playSound('lose'), 280);
+
+    const pal = currentPalette();
+    // particle explosion
+    for (let i = 0; i < 36; i++) {
+      const ang = (i / 36) * Math.PI * 2 + Math.random() * 0.4;
+      const sp = 200 + Math.random() * 350;
+      particles.push({
+        x: ball.x, y: ball.y,
+        vx: Math.cos(ang) * sp,
+        vy: Math.sin(ang) * sp,
+        life: 0.9 + Math.random() * 0.4,
+        maxLife: 1.3,
+        color: i % 3 === 0 ? pal.spike : (i % 3 === 1 ? pal.ball : '#FFFFFF'),
+        size: 3 + Math.random() * 5,
+        gravity: 600,
+      });
+    }
+
+    setTimeout(() => showLoseModal(ob), 700);
+  }
+
+  function showWinModal(stars) {
+    document.getElementById('winLevelName').textContent = 'Level ' + currentLevel.id + ' — ' + currentLevel.name;
+    let starHtml = '';
+    for (let i = 0; i < 3; i++) {
+      starHtml += i < stars ? '<span>★</span>' : '<span class="s-off">★</span>';
+    }
+    document.getElementById('winStars').innerHTML = starHtml;
+    document.getElementById('winTime').textContent = elapsed.toFixed(1) + 's';
+    document.getElementById('winCoins').textContent = coinsCollected + '/' + levelData.totalCoins;
+    document.getElementById('winScore').textContent = Math.floor(distance + coinsCollected * 50);
+
+    const nextBtn = document.getElementById('winNext');
+    if (currentLevel.id < 10) {
+      nextBtn.style.display = '';
+      nextBtn.textContent = 'Next Level →';
+    } else {
+      nextBtn.style.display = 'none';
+    }
+
+    document.getElementById('pauseBtn').classList.remove('show');
+    document.getElementById('winModal').classList.add('show');
+  }
+
+  function showLoseModal(ob) {
+    document.getElementById('loseLevelName').textContent = 'Level ' + currentLevel.id + ' — ' + currentLevel.name;
+    const msg = ob && ob.type === 'spike'
+      ? 'You hit a spike! Time your flip earlier.'
+      : ob && ob.type === 'block'
+      ? 'You smashed into a block! Switch gravity sooner.'
+      : ob && ob.type === 'moving'
+      ? 'Caught by a moving obstacle! Watch its rhythm.'
+      : 'You hit an obstacle!';
+    document.getElementById('loseMsg').textContent = msg;
+    document.getElementById('loseTime').textContent = elapsed.toFixed(1) + 's';
+    document.getElementById('loseCoins').textContent = coinsCollected + '/' + levelData.totalCoins;
+    document.getElementById('loseScore').textContent = Math.floor(distance + coinsCollected * 50);
+
+    document.getElementById('pauseBtn').classList.remove('show');
+    document.getElementById('loseModal').classList.add('show');
+  }
+
+  function hideAllModals() {
+    document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+    document.getElementById('tutorial').classList.remove('show');
+    document.getElementById('levelIntro').classList.remove('show', 'fade');
+    document.getElementById('tapHint').classList.remove('show');
+  }
+
+  function showLevelPicker() {
+    state = 'menu';
+    document.getElementById('pauseBtn').classList.remove('show');
+    hideAllModals();
+    renderLevelGrid();
+    document.getElementById('levelPicker').classList.add('show');
+  }
+
+  function renderLevelGrid() {
+    const grid = document.getElementById('levelsGrid');
+    grid.innerHTML = '';
+    LEVELS.forEach(level => {
+      const unlocked = level.id <= progress.unlocked;
+      const lp = progress.levels[level.id];
+      const card = document.createElement('div');
+      card.className = 'level-card' + (unlocked ? '' : ' locked');
+      card.dataset.id = level.id;
+      const pal = PALETTES[level.palette];
+
+      let starsHtml = '';
+      const stars = lp ? (lp.stars || 0) : 0;
+      for (let i = 0; i < 3; i++) {
+        starsHtml += i < stars ? '<span class="s-on">★</span>' : '<span class="s-off">★</span>';
+      }
+
+      const bestTime = lp && lp.bestTime ? lp.bestTime.toFixed(1) + 's' : '';
+      const bestCoins = lp ? (lp.coins + '/' + (lp.totalCoins || 0)) : '';
+
+      card.style.background = unlocked
+        ? `linear-gradient(160deg, ${pal.bg2}cc, ${pal.bg1}cc)`
+        : 'rgba(255,255,255,0.03)';
+      card.style.borderColor = unlocked ? pal.accent + '55' : 'rgba(255,255,255,0.06)';
+
+      card.innerHTML = `
+        ${unlocked ? '' : '<div class="lock">🔒</div>'}
+        <div class="num" style="color:${unlocked ? pal.accent : 'rgba(255,255,255,0.5)'}">${level.id}</div>
+        <div class="name">${level.name}</div>
+        <div class="stars">${starsHtml}</div>
+        <div class="best"></div>
+      `;
+
+      const bestDiv = card.querySelector('.best');
+      if (bestTime) {
+        bestDiv.textContent = bestTime + ' · ' + bestCoins;
+      } else {
+        bestDiv.textContent = level.duration + 's';
+      }
+
+      if (unlocked) {
+        card.addEventListener('click', () => {
+          playSound('click');
+          startLevel(level.id);
+        });
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  // ============================================================
+  //  RENDERING
+  // ============================================================
+  function render(now) {
+    const pal = currentPalette();
+    const shakeX = (now < shakeUntil) ? (Math.random() - 0.5) * shakeMag : 0;
+    const shakeY = (now < shakeUntil) ? (Math.random() - 0.5) * shakeMag : 0;
+
+    ctx.save();
+    if (shakeX || shakeY) ctx.translate(shakeX, shakeY);
+
+    // Background gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, pal.bg1);
+    bgGrad.addColorStop(0.5, pal.bg2);
+    bgGrad.addColorStop(1, pal.bg1);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(-20, -20, W + 40, H + 40);
+
+    // Stars (parallax)
+    drawStars(now, pal);
+
+    if (state === 'menu') {
+      // menu preview — ball idling in middle, gentle bob
+      const bob = Math.sin(now / 600) * 6;
+      ball.y = (CEILING_TOP + H - FLOOR_THICKNESS) / 2 + bob;
+      ball.rotation = Math.sin(now / 1200) * 8;
+      drawFloorCeiling(pal);
+      drawBall(now, pal);
+      ctx.restore();
+      return;
+    }
+
+    // Floor + ceiling
+    drawFloorCeiling(pal);
+
+    // Obstacles
+    for (const ob of levelData.obstacles) {
+      const obWorldX = ob.t * currentLevel.speed;
+      const obScreenX = obWorldX - cameraX;
+      if (obScreenX < -100 || obScreenX > W + 100) continue;
+      drawObstacle(ob, obScreenX, pal, now);
+    }
+
+    // Coins
+    for (const c of levelData.coins) {
+      if (c.collected) continue;
+      const cWorldX = c.t * currentLevel.speed;
+      const cScreenX = cWorldX - cameraX;
+      if (cScreenX < -50 || cScreenX > W + 50) continue;
+      drawCoin(cScreenX, c, now);
+    }
+
+    // Ball trail
+    drawTrail(now, pal);
+
+    // Ball
+    drawBall(now, pal);
+
+    // Particles
+    drawParticles();
+
+    ctx.restore();
+
+    // Flash overlay (no shake)
+    if (flashAlpha > 0) {
+      ctx.fillStyle = `rgba(255, 60, 60, ${flashAlpha * 0.55})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function drawStars(now, pal) {
+    const scrollOffset = state === 'playing' || state === 'intro' || state === 'paused' ? cameraX : (now / 30);
+    for (const s of stars) {
+      const px = (s.x - scrollOffset * s.depth * 0.15) % W;
+      const x = px < 0 ? px + W : px;
+      const tw = 0.55 + 0.45 * Math.sin(now / 700 + s.twinkle);
+      ctx.fillStyle = s.color === '#FFFFFF'
+        ? `rgba(255,255,255,${tw * 0.7 * s.depth})`
+        : hexAlpha(pal.accent, tw * 0.6 * s.depth);
+      ctx.beginPath();
+      ctx.arc(x, s.y, s.r * s.depth, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawFloorCeiling(pal) {
+    // Ceiling bar (above playable area)
+    const ceilGrad = ctx.createLinearGradient(0, 0, 0, CEILING_TOP);
+    ceilGrad.addColorStop(0, pal.surfaceHi);
+    ceilGrad.addColorStop(1, pal.surface);
+    ctx.fillStyle = ceilGrad;
+    ctx.fillRect(0, 0, W, CEILING_TOP);
+    // ceiling edge
+    ctx.fillStyle = pal.accent;
+    ctx.globalAlpha = 0.85;
+    ctx.fillRect(0, CEILING_TOP - 3, W, 3);
+    ctx.globalAlpha = 1;
+    // ceiling texture (subtle lines)
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    const coff = (cameraX * 0.5) % 40;
+    for (let x = -coff; x < W; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 20);
+      ctx.lineTo(x + 20, CEILING_TOP - 6);
+      ctx.stroke();
+    }
+
+    // Floor bar
+    const floorGrad = ctx.createLinearGradient(0, H - FLOOR_THICKNESS, 0, H);
+    floorGrad.addColorStop(0, pal.surface);
+    floorGrad.addColorStop(1, pal.surfaceHi);
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, H - FLOOR_THICKNESS, W, FLOOR_THICKNESS);
+    // floor edge
+    ctx.fillStyle = pal.accent;
+    ctx.globalAlpha = 0.85;
+    ctx.fillRect(0, H - FLOOR_THICKNESS, W, 3);
+    ctx.globalAlpha = 1;
+    // floor texture
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    const foff = (cameraX * 0.5) % 40;
+    for (let x = -foff; x < W; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, H - FLOOR_THICKNESS + 6);
+      ctx.lineTo(x + 20, H - 4);
+      ctx.stroke();
+    }
+  }
+
+  function drawObstacle(ob, x, pal, now) {
+    if (ob.type === 'spike') {
+      drawSpike(x, ob.surface, pal);
+    } else if (ob.type === 'block') {
+      drawBlock(x, ob, pal);
+    } else if (ob.type === 'moving') {
+      drawMoving(x, ob, pal, now);
+    }
+  }
+
+  function drawSpike(x, surface, pal) {
+    const w = SPIKE_W, h = SPIKE_H;
+    const tipY = surface === 'floor' ? (H - FLOOR_THICKNESS - h) : (CEILING_TOP + h);
+    const baseY = surface === 'floor' ? (H - FLOOR_THICKNESS) : CEILING_TOP;
+    const grad = ctx.createLinearGradient(0, Math.min(tipY, baseY), 0, Math.max(tipY, baseY));
+    grad.addColorStop(0, pal.spike);
+    grad.addColorStop(1, pal.spikeDark);
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.globalAlpha = 0.95;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    if (surface === 'floor') {
+      ctx.moveTo(x - w / 2, baseY);
+      ctx.lineTo(x + w / 2, baseY);
+      ctx.lineTo(x, tipY);
+    } else {
+      ctx.moveTo(x - w / 2, baseY);
+      ctx.lineTo(x + w / 2, baseY);
+      ctx.lineTo(x, tipY);
+    }
+    ctx.closePath();
+    ctx.fill();
+    // highlight on tip
+    ctx.globalAlpha = 0.4;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    // tip glow
+    ctx.fillStyle = pal.spike;
+    ctx.globalAlpha = 0.4;
+    ctx.beginPath();
+    ctx.arc(x, tipY, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawBlock(x, ob, pal) {
+    const w = ob.w, h = ob.h;
+    let bx, by;
+    if (ob.surface === 'floor') {
+      bx = x - w / 2; by = H - FLOOR_THICKNESS - h;
+    } else {
+      bx = x - w / 2; by = CEILING_TOP;
+    }
+    // glow
+    ctx.shadowColor = pal.blockLight;
+    ctx.shadowBlur = 12;
+    const grad = ctx.createLinearGradient(bx, by, bx, by + h);
+    grad.addColorStop(0, pal.blockLight);
+    grad.addColorStop(0.5, pal.block);
+    grad.addColorStop(1, pal.blockLight);
+    ctx.fillStyle = grad;
+    roundRect(bx, by, w, h, 6);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // border
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1.2;
+    roundRect(bx, by, w, h, 6);
+    ctx.stroke();
+    // inner detail
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(bx + 4, by + 4, w - 8, 2);
+  }
+
+  function drawMoving(x, ob, pal, now) {
+    const w = ob.w, h = ob.h;
+    const cy = (CEILING_TOP + H - FLOOR_THICKNESS) / 2;
+    const phase = (elapsed / ob.period) * Math.PI * 2 + ob.phase;
+    const yPos = cy + Math.sin(phase) * ob.range;
+    const bx = x - w / 2, by = yPos - h / 2;
+    // pulsing glow
+    const pulse = 0.6 + 0.4 * Math.sin(now / 200);
+    ctx.shadowColor = pal.spike;
+    ctx.shadowBlur = 18 * pulse;
+    const grad = ctx.createLinearGradient(bx, by, bx, by + h);
+    grad.addColorStop(0, pal.spike);
+    grad.addColorStop(1, pal.spikeDark);
+    ctx.fillStyle = grad;
+    roundRect(bx, by, w, h, 8);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // border
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = 1.5;
+    roundRect(bx, by, w, h, 8);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    // motion trail lines
+    ctx.strokeStyle = pal.spike;
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(bx + w / 2, Math.max(CEILING_TOP, by - 12));
+    ctx.lineTo(bx + w / 2, by);
+    ctx.moveTo(bx + w / 2, by + h);
+    ctx.lineTo(bx + w / 2, Math.min(H - FLOOR_THICKNESS, by + h + 12));
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCoin(x, c, now) {
+    const y = (c.surface === 'floor') ? floorY() : ceilingY();
+    const spin = Math.abs(Math.cos(now / 200));
+    const sx = Math.max(0.18, spin);
+    ctx.save();
+    ctx.translate(x, y);
+    // glow
+    const glowR = COIN_RADIUS * 2.4;
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
+    g.addColorStop(0, 'rgba(251, 191, 36, 0.5)');
+    g.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, glowR, 0, Math.PI * 2);
+    ctx.fill();
+    // coin body
+    ctx.scale(sx, 1);
+    ctx.fillStyle = '#FBBF24';
+    ctx.beginPath();
+    ctx.arc(0, 0, COIN_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#D97706';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // shine
+    ctx.fillStyle = '#FEF3C7';
+    ctx.beginPath();
+    ctx.arc(-COIN_RADIUS * 0.3, -COIN_RADIUS * 0.3, COIN_RADIUS * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    // inner star
+    ctx.fillStyle = '#D97706';
+    ctx.font = 'bold ' + (COIN_RADIUS * 1.1) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.globalAlpha = 0.7;
+    ctx.fillText('★', 0, 1);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  function drawTrail(now, pal) {
+    for (let i = 0; i < ball.trail.length; i++) {
+      const p = ball.trail[i];
+      const age = (now - p.t) / TRAIL_LIFE;
+      if (age >= 1) continue;
+      const alpha = (1 - age) * 0.5;
+      const r = ball.radius * (1 - age * 0.55);
+      ctx.fillStyle = hexAlpha(pal.ballGlow, alpha);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawBall(now, pal) {
+    const cx = ball.x, cy = ball.y, r = ball.radius;
+    // glow halo
+    const glowR = r * (2.6 + ball.flipFlash * 0.6);
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+    grad.addColorStop(0, hexAlpha(pal.ballGlow, 0.55 + ball.flipFlash * 0.3));
+    grad.addColorStop(1, hexAlpha(pal.ballGlow, 0));
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ball body with rotation
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(ball.rotation * Math.PI / 180);
+
+    // bottom half (darker)
+    ctx.fillStyle = pal.ballDark;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    // top half (lighter)
+    ctx.fillStyle = pal.ball;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, Math.PI, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+
+    // outline
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // divider line (shows rotation)
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-r, 0);
+    ctx.lineTo(r, 0);
+    ctx.stroke();
+
+    // small eye dot to make rotation clearer
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.45, r * 0.18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.45, r * 0.09, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawParticles() {
+    for (const p of particles) {
+      const a = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = hexAlpha(p.color, a);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // ============================================================
+  //  HELPERS
+  // ============================================================
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function hexAlpha(hex, a) {
+    // Accept #RRGGBB or hsl(...) string
+    if (hex.startsWith('hsl')) {
+      // Convert hsl(h,s%,l%) → rgba via temporary canvas trick is heavy; just use hsla
+      return hex.replace('hsl(', 'hsla(').replace(')', `,${a})`);
+    }
+    if (hex.startsWith('rgb')) {
+      return hex.replace('rgb(', 'rgba(').replace(')', `,${a})`);
+    }
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  // ============================================================
+  //  WIRE UP UI
+  // ============================================================
+  document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+  document.getElementById('muteBtn').addEventListener('click', () => {
+    muted = !muted;
+    document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    saveMute();
+    if (!muted) playSound('click');
+  });
+
+  document.getElementById('pauseBtn').addEventListener('click', togglePause);
+  document.getElementById('pauseResume').addEventListener('click', togglePause);
+  document.getElementById('pauseMenu').addEventListener('click', () => {
+    document.getElementById('pauseModal').classList.remove('show');
+    showLevelPicker();
+  });
+
+  document.getElementById('tutorialStart').addEventListener('click', () => {
+    document.getElementById('tutorial').classList.remove('show');
+    // brief intro then play
+    document.getElementById('introNum').textContent = 'LEVEL ' + currentLevel.id;
+    document.getElementById('introName').textContent = currentLevel.name;
+    document.getElementById('introTarget').textContent = 'Survive ' + currentLevel.duration + ' seconds';
+    const intro = document.getElementById('levelIntro');
+    intro.classList.remove('fade');
+    intro.classList.add('show');
+    introTimer = 1.4;
+    state = 'intro';
+    // show tap hint
+    setTimeout(() => {
+      if (state === 'playing' && !firstFlipDone) {
+        document.getElementById('tapHint').classList.add('show');
+      }
+    }, 1600);
+    playSound('click');
+    lastTime = performance.now();
+  });
+
+  document.getElementById('winMenu').addEventListener('click', () => {
+    document.getElementById('winModal').classList.remove('show');
+    showLevelPicker();
+  });
+  document.getElementById('winRetry').addEventListener('click', () => {
+    document.getElementById('winModal').classList.remove('show');
+    startLevel(currentLevel.id);
+  });
+  document.getElementById('winNext').addEventListener('click', () => {
+    document.getElementById('winModal').classList.remove('show');
+    if (currentLevel.id < 10) startLevel(currentLevel.id + 1);
+    else showLevelPicker();
+  });
+
+  document.getElementById('loseMenu').addEventListener('click', () => {
+    document.getElementById('loseModal').classList.remove('show');
+    showLevelPicker();
+  });
+  document.getElementById('loseRetry').addEventListener('click', () => {
+    document.getElementById('loseModal').classList.remove('show');
+    startLevel(currentLevel.id);
+  });
+
+  document.getElementById('resetProgress').addEventListener('click', () => {
+    if (confirm('Reset all Gravity Flip progress? Stars, unlocks, and best times will be cleared.')) {
+      progress = { unlocked: 1, levels: {} };
+      saveProgress(progress);
+      renderLevelGrid();
+      playSound('click');
+    }
+  });
+
+  // ============================================================
+  //  BOOT
+  // ============================================================
+  resize();
+  showLevelPicker();
+  requestAnimationFrame(gameLoop);
+
+  // expose read-only debug API (no triggers that could bypass progression)
+  window.__gravityFlip = {
+    state: () => state,
+    progress: () => progress,
+    currentLevel: () => currentLevel,
+    levelData: () => levelData,
+    elapsed: () => elapsed,
+    coinsCollected: () => coinsCollected,
+  };
+
+})();
+</script>
+</body>
+</html>
