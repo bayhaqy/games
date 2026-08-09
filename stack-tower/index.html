@@ -31,8 +31,22 @@
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    background: var(--bg);
+  }
+  /* Centered portrait (9:16) playfield with letterbox on left/right */
+  .playfield-wrap {
+    position: relative;
+    height: 100%;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.45);
+    border-left: 1px solid rgba(241, 245, 249, 0.06);
+    border-right: 1px solid rgba(241, 245, 249, 0.06);
   }
   canvas#game {
     display: block;
@@ -41,13 +55,15 @@
     touch-action: none;
     background: #0F172A;
   }
-  /* On wide screens, constrain the playfield to a portrait area and center it. */
-  @media (min-width: 768px) {
-    #game-wrap {
-      max-width: 540px;
-      box-shadow: 0 0 80px rgba(0, 0, 0, 0.45);
-      border-left: 1px solid rgba(241, 245, 249, 0.06);
-      border-right: 1px solid rgba(241, 245, 249, 0.06);
+  /* On mobile (<=720px), allow full-screen usage */
+  @media (max-width: 720px) {
+    .playfield-wrap {
+      aspect-ratio: auto;
+      width: 100%;
+      height: 100%;
+      box-shadow: none;
+      border-left: none;
+      border-right: none;
     }
   }
 
@@ -67,14 +83,14 @@
     z-index: 30;
     border-bottom: 1px solid rgba(255,255,255,0.06);
   }
-  /* On wide screens, keep topbar aligned with the centered canvas */
-  @media (min-width: 768px) {
+  /* On wide screens, keep topbar aligned with the centered playfield (9:16 portrait) */
+  @media (min-width: 721px) {
     .topbar {
       left: 50%;
       right: auto;
       transform: translateX(-50%);
-      width: 100%;
-      max-width: 540px;
+      width: calc(100vh * 9 / 16);
+      max-width: 100%;
     }
   }
   .back-link {
@@ -118,7 +134,7 @@
 
   /* === HUD === */
   .hud {
-    position: fixed;
+    position: absolute;
     top: calc(46px + env(safe-area-inset-top, 0px) + 8px);
     left: 0; right: 0;
     display: flex;
@@ -160,7 +176,7 @@
 
   /* === Progress bar === */
   .progress-bar {
-    position: fixed;
+    position: absolute;
     top: calc(46px + env(safe-area-inset-top, 0px) + 42px);
     left: 12px; right: 12px;
     height: 5px;
@@ -181,7 +197,7 @@
 
   /* === Pause button === */
   .pause-btn {
-    position: fixed;
+    position: absolute;
     bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     right: 20px;
     width: 46px; height: 46px;
@@ -204,7 +220,7 @@
 
   /* === Tap hint === */
   .tap-hint {
-    position: fixed;
+    position: absolute;
     bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
@@ -231,7 +247,7 @@
 
   /* === Level intro === */
   .level-intro {
-    position: fixed;
+    position: absolute;
     inset: 0;
     display: none;
     align-items: center;
@@ -491,6 +507,7 @@
   </header>
 
   <div id="game-wrap">
+   <div class="playfield-wrap" id="playfieldWrap">
     <canvas id="game"></canvas>
 
     <div class="hud" id="hud">
@@ -519,6 +536,7 @@
       <div class="intro-name" id="introName">Foundation</div>
       <div class="intro-target" id="introTarget">Stack 5 blocks</div>
     </div>
+   </div><!-- /.playfield-wrap -->
 
     <div class="tutorial" id="tutorial">
       <div class="tutorial-inner">
@@ -785,7 +803,9 @@
   // ============================================================
   function resize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2);
-    const rect = canvas.getBoundingClientRect();
+    // Read dimensions from the playfield wrap (portrait 9:16 on desktop, full-screen on mobile)
+    const wrap = document.getElementById('playfieldWrap');
+    const rect = wrap.getBoundingClientRect();
     W = Math.max(280, Math.floor(rect.width));
     H = Math.max(400, Math.floor(rect.height));
     canvas.width = Math.floor(W * DPR);
@@ -979,9 +999,10 @@
     }
   }
   canvas.addEventListener('pointerdown', onPointerDown);
-  // also catch taps that miss the canvas (full-screen tap)
+  // also catch taps on the playfield wrap (e.g., letterbox area outside canvas but inside playfield)
   document.getElementById('game-wrap').addEventListener('pointerdown', (e) => {
-    if (state === 'playing' && (e.target === canvas || e.target === document.getElementById('game-wrap'))) {
+    const wrap = document.getElementById('playfieldWrap');
+    if (state === 'playing' && (e.target === canvas || e.target === wrap)) {
       e.preventDefault();
       tryDrop();
     }
