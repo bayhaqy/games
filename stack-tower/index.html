@@ -27,7 +27,11 @@
   }
   #game-wrap {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0 auto;
     overflow: hidden;
   }
   canvas#game {
@@ -36,6 +40,15 @@
     height: 100%;
     touch-action: none;
     background: #0F172A;
+  }
+  /* On wide screens, constrain the playfield to a portrait area and center it. */
+  @media (min-width: 768px) {
+    #game-wrap {
+      max-width: 540px;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.45);
+      border-left: 1px solid rgba(241, 245, 249, 0.06);
+      border-right: 1px solid rgba(241, 245, 249, 0.06);
+    }
   }
 
   /* === Top bar === */
@@ -53,6 +66,16 @@
     -webkit-backdrop-filter: blur(12px);
     z-index: 30;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  /* On wide screens, keep topbar aligned with the centered canvas */
+  @media (min-width: 768px) {
+    .topbar {
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 540px;
+    }
   }
   .back-link {
     color: var(--muted);
@@ -762,8 +785,9 @@
   // ============================================================
   function resize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth;
-    H = window.innerHeight;
+    const rect = canvas.getBoundingClientRect();
+    W = Math.max(280, Math.floor(rect.width));
+    H = Math.max(400, Math.floor(rect.height));
     canvas.width = Math.floor(W * DPR);
     canvas.height = Math.floor(H * DPR);
     canvas.style.width = W + 'px';
