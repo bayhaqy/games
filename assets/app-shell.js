@@ -61,16 +61,7 @@
     footer.className = 'app-footer';
     footer.innerHTML =
       '<div class="app-footer-inner">' +
-        '<a class="brand-mini" href="/games/" aria-label="Bayhaqy — Arcade home">' +
-          '<img src="/games/icons/logo.png" alt="Bayhaqy" />' +
-        '</a>' +
         '<span class="copy">© 2026 Achmad Bayhaqy. All rights reserved.</span>' +
-        '<span class="links">' +
-          '<a href="https://bayhaqy.my.id/">Portfolio</a>' +
-          '<a href="https://bayhaqy.my.id/kids/">Kids</a>' +
-          '<a href="https://bayhaqy.my.id/apps/">Apps</a>' +
-          '<a href="https://github.com/bayhaqy/games">GitHub</a>' +
-        '</span>' +
       '</div>';
     document.body.appendChild(footer);
 
