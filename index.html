@@ -1,512 +1,449 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#FFFFFF" />
-<title>Bayhaqy Arcade — 7 Free HTML5 Browser Mini Games</title>
-<meta name="description" content="Play 7 free HTML5 browser mini games: Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, and Gravity Flip. Each game has progressive levels, mobile support, and runs entirely in your browser — no installs, no sign-up, no internet required." />
-<meta name="keywords" content="browser games, HTML5 games, mini games, Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, Gravity Flip, free online games, browser arcade, mobile games" />
-<meta name="author" content="Achmad Bayhaqy" />
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-<meta name="googlebot" content="index, follow" />
-<meta name="bingbot" content="index, follow" />
-<link rel="canonical" href="https://bayhaqy.my.id/games/" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Bayhaqy Arcade — 7 free HTML5 browser mini games with progressive levels, star ratings, and persistent progress. Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, Gravity Flip. No installs, no ads." />
+  <meta name="keywords" content="browser games, HTML5 games, mini games, Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, Gravity Flip, free online games, browser arcade, mobile games" />
+  <meta name="author" content="Achmad Bayhaqy" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="bingbot" content="index, follow" />
+  <meta name="theme-color" content="#B91C1C" />
+  <link rel="canonical" href="https://bayhaqy.my.id/games/" />
 
-<!-- Open Graph -->
-<meta property="og:title" content="Bayhaqy Arcade — 7 Free HTML5 Browser Mini Games" />
-<meta property="og:description" content="Play Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, and Gravity Flip — free in your browser, no installs." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://bayhaqy.my.id/games/" />
-<meta property="og:site_name" content="Bayhaqy Arcade" />
-<meta property="og:locale" content="en_US" />
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bayhaqy Arcade — 7 Free HTML5 Browser Mini Games" />
+  <meta property="og:description" content="Play Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, and Gravity Flip — free in your browser, no installs." />
+  <meta property="og:url" content="https://bayhaqy.my.id/games/" />
+  <meta property="og:image" content="https://bayhaqy.my.id/games/icons/og-image.png" />
+  <meta property="og:site_name" content="Bayhaqy Arcade" />
+  <meta property="og:locale" content="en_US" />
 
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Bayhaqy Arcade — 7 Free HTML5 Browser Mini Games" />
-<meta name="twitter:description" content="Play Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, and Gravity Flip — free in your browser." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bayhaqy Arcade — 7 Free HTML5 Browser Mini Games" />
+  <meta name="twitter:description" content="Play Angry Birds, Tetris, Flappy Bird, 2048, Stack Tower, Color Switch, and Gravity Flip — free in your browser." />
+  <meta name="twitter:image" content="https://bayhaqy.my.id/games/icons/og-image.png" />
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23DC2626'/%3E%3Ctext x='50' y='68' font-family='Arial' font-size='52' font-weight='bold' fill='white' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" href="/games/icons/logo.png" />
+  <link rel="apple-touch-icon" href="/games/icons/logo.png" />
+  <link rel="manifest" href="/games/manifest.json" />
 
-<script>
-  (function() {
-    try {
-      var saved = localStorage.getItem('arcade-theme');
-      if (saved === 'dark' || saved === 'light') {
-        document.documentElement.setAttribute('data-theme', saved);
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    } catch (e) {}
-  })();
-</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-<!-- Structured data: WebSite + ItemList of games -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Bayhaqy Arcade",
-  "url": "https://bayhaqy.my.id/games/",
-  "description": "A collection of 7 free HTML5 browser mini games with progressive level systems.",
-  "author": { "@type": "Person", "name": "Achmad Bayhaqy", "url": "https://bayhaqy.my.id/" }
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  "name": "Bayhaqy Arcade Games",
-  "url": "https://bayhaqy.my.id/games/",
-  "numberOfItems": 7,
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Angry Birds", "url": "https://bayhaqy.my.id/games/angry-birds/" },
-    { "@type": "ListItem", "position": 2, "name": "Tetris", "url": "https://bayhaqy.my.id/games/tetris/" },
-    { "@type": "ListItem", "position": 3, "name": "Flappy Bird", "url": "https://bayhaqy.my.id/games/flappy-bird/" },
-    { "@type": "ListItem", "position": 4, "name": "2048", "url": "https://bayhaqy.my.id/games/2048/" },
-    { "@type": "ListItem", "position": 5, "name": "Stack Tower", "url": "https://bayhaqy.my.id/games/stack-tower/" },
-    { "@type": "ListItem", "position": 6, "name": "Color Switch", "url": "https://bayhaqy.my.id/games/color-switch/" },
-    { "@type": "ListItem", "position": 7, "name": "Gravity Flip", "url": "https://bayhaqy.my.id/games/gravity-flip/" }
-  ]
-}
-</script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  :root {
-    /* LIGHT THEME (default) */
-    --bg: #FFFFFF;
-    --bg-2: #F8FAFC;
-    --bg-3: #F1F5F9;
-    --fg: #0F172A;
-    --muted: #64748B;
-    --accent: #DC2626;
-    --accent-2: #F59E0B;
-    --green: #10B981;
-    --card-bg: linear-gradient(160deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));
-    --card-border: rgba(15, 23, 42, 0.08);
-    --card-border-hover: rgba(15, 23, 42, 0.15);
-    --chip-bg: rgba(241, 245, 249, 0.8);
-    --chip-border: rgba(15, 23, 42, 0.08);
-    --chip-hover: rgba(226, 232, 240, 0.9);
-    --header-border: rgba(15, 23, 42, 0.06);
-    --shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.12);
-    --radius: 14px;
-  }
-  [data-theme="dark"] {
-    --bg: #0F172A;
-    --bg-2: #1E293B;
-    --bg-3: #334155;
-    --fg: #F1F5F9;
-    --muted: #94A3B8;
-    --accent: #DC2626;
-    --accent-2: #F59E0B;
-    --green: #10B981;
-    --card-bg: linear-gradient(160deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
-    --card-border: rgba(241, 245, 249, 0.07);
-    --card-border-hover: rgba(241, 245, 249, 0.15);
-    --chip-bg: rgba(30, 41, 59, 0.6);
-    --chip-border: rgba(241, 245, 249, 0.08);
-    --chip-hover: rgba(51, 65, 85, 0.8);
-    --header-border: rgba(241, 245, 249, 0.06);
-    --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-  }
-  html, body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    min-height: 100vh;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-  body {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220, 38, 38, 0.08), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(245, 158, 11, 0.05), transparent 50%),
-      var(--bg);
-    background-attachment: fixed;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-  [data-theme="dark"] body {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220, 38, 38, 0.10), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(245, 158, 11, 0.06), transparent 50%),
-      var(--bg);
-    background-attachment: fixed;
-  }
-  .container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1.25rem;
-  }
+  <title>Bayhaqy Arcade — 7 Free HTML5 Browser Mini Games</title>
 
-  /* Header */
-  .site-header {
-    padding: 3rem 0 1.5rem;
-    text-align: center;
-    border-bottom: 1px solid var(--header-border);
-    margin-bottom: 2rem;
-    position: relative;
-  }
-  /* Theme toggle (footer) */
-  .theme-toggle-portal {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.85rem;
-    border: 1px solid var(--chip-border);
-    background: var(--chip-bg);
-    border-radius: 999px;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 600;
-    font-family: inherit;
-    line-height: 1;
-    letter-spacing: 0.02em;
-    transition: background .2s, border-color .2s, color .2s, transform .15s;
-  }
-  .theme-toggle-portal:hover {
-    background: var(--chip-hover);
-    border-color: var(--accent);
-    color: var(--fg);
-    transform: translateY(-1px);
-  }
-  .theme-toggle-portal:active { transform: scale(0.96); }
-  .theme-toggle-portal .icon-sun,
-  .theme-toggle-portal .icon-moon { font-size: 14px; line-height: 1; }
-  .theme-toggle-portal .toggle-label { font-size: 0.78rem; font-weight: 600; }
-  .theme-toggle-portal .icon-sun { display: none; }
-  .theme-toggle-portal .icon-moon { display: inline; }
-  [data-theme="dark"] .theme-toggle-portal .icon-sun { display: inline; }
-  [data-theme="dark"] .theme-toggle-portal .icon-moon { display: none; }
-  .site-eyebrow {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--accent);
-    padding: 0.3rem 0.8rem;
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    border-radius: 999px;
-    background: rgba(220, 38, 38, 0.06);
-    margin-bottom: 1rem;
-  }
-  .site-title {
-    font-size: clamp(2rem, 5vw, 3.25rem);
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
-    margin-bottom: 0.6rem;
-  }
-  .site-title .accent { color: var(--accent); }
-  .site-subtitle {
-    color: var(--muted);
-    font-size: clamp(0.95rem, 1.6vw, 1.1rem);
-    max-width: 620px;
-    margin: 0 auto 1.2rem;
-  }
-  .site-stats {
-    display: inline-flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 0.75rem;
-    padding: 0.75rem 1.25rem;
-    background: var(--chip-bg);
-    border: 1px solid var(--chip-border);
-    border-radius: 999px;
-    font-size: 0.875rem;
-  }
-  .site-stats .stat-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--muted);
-  }
-  .site-stats .stat-pill strong {
-    color: var(--fg);
-    font-weight: 700;
-  }
-  .site-stats .stat-pill .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-  }
+  <!-- Prevent theme flash -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('bayhaqy-games-theme');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.setAttribute('data-theme', saved);
+        } else {
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        }
+      } catch (e) {}
+    })();
+  </script>
 
-  /* Filter bar */
-  .filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-bottom: 2rem;
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Bayhaqy Arcade",
+    "url": "https://bayhaqy.my.id/games/",
+    "description": "A collection of 7 free HTML5 browser mini games with progressive level systems.",
+    "author": { "@type": "Person", "name": "Achmad Bayhaqy", "url": "https://bayhaqy.my.id/" }
   }
-  .filter-chip {
-    background: var(--chip-bg);
-    border: 1px solid var(--chip-border);
-    color: var(--muted);
-    padding: 0.5rem 1.1rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    -webkit-user-select: none;
-    user-select: none;
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Bayhaqy Arcade Games",
+    "url": "https://bayhaqy.my.id/games/",
+    "numberOfItems": 7,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Angry Birds", "url": "https://bayhaqy.my.id/games/angry-birds/" },
+      { "@type": "ListItem", "position": 2, "name": "Tetris", "url": "https://bayhaqy.my.id/games/tetris/" },
+      { "@type": "ListItem", "position": 3, "name": "Flappy Bird", "url": "https://bayhaqy.my.id/games/flappy-bird/" },
+      { "@type": "ListItem", "position": 4, "name": "2048", "url": "https://bayhaqy.my.id/games/2048/" },
+      { "@type": "ListItem", "position": 5, "name": "Stack Tower", "url": "https://bayhaqy.my.id/games/stack-tower/" },
+      { "@type": "ListItem", "position": 6, "name": "Color Switch", "url": "https://bayhaqy.my.id/games/color-switch/" },
+      { "@type": "ListItem", "position": 7, "name": "Gravity Flip", "url": "https://bayhaqy.my.id/games/gravity-flip/" }
+    ]
   }
-  .filter-chip:hover {
-    background: var(--chip-hover);
-    color: var(--fg);
-    transform: translateY(-1px);
-  }
-  .filter-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
+  </script>
 
-  /* Games grid */
-  .games-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 3rem;
-  }
-  .game-card {
-    position: relative;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-  }
-  .game-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow), 0 0 0 1px var(--card-accent, var(--accent));
-    border-color: var(--card-accent, var(--accent));
-  }
-  .game-card:hover .preview-canvas {
-    transform: scale(1.04);
-  }
-  .game-card:hover .play-btn {
-    background: var(--card-accent, var(--accent));
-    color: #fff;
-  }
-  .preview {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    background: var(--preview-bg, var(--bg-3));
-    overflow: hidden;
-    border-bottom: 1px solid var(--card-border);
-  }
-  .preview-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.4s ease;
-    display: block;
-  }
-  .preview-emoji {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(3rem, 8vw, 4.5rem);
-    text-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-    pointer-events: none;
-  }
-  .genre-tag {
-    position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #F1F5F9;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    border: 1px solid rgba(241, 245, 249, 0.15);
-  }
-  .card-body {
-    padding: 1.1rem 1.2rem 1.2rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .card-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--fg);
-  }
-  .card-desc {
-    font-size: 0.85rem;
-    color: var(--muted);
-    line-height: 1.45;
-    flex: 1;
-  }
-  .card-progress {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 0.4rem;
-    gap: 0.5rem;
-  }
-  .card-progress .levels {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-  .card-progress .levels strong {
-    color: var(--fg);
-    font-weight: 700;
-  }
-  .stars {
-    display: inline-flex;
-    gap: 1px;
-    font-size: 0.85rem;
-    color: var(--accent-2);
-    letter-spacing: 1px;
-  }
-  .stars .empty { color: var(--card-border-hover); }
-  .play-btn {
-    margin-top: 0.7rem;
-    background: var(--chip-bg);
-    border: 1px solid var(--chip-border);
-    color: var(--fg);
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-align: center;
-    transition: background 0.18s, color 0.18s, transform 0.12s;
-    pointer-events: none;
-  }
-  .game-card:active .play-btn {
-    transform: scale(0.97);
-  }
+  <link rel="stylesheet" href="/games/assets/theme.css?v=20260811a" />
+  <style>
+    /* Landing-page-specific styles layered on top of theme.css */
+    .games-hero {
+      position: relative;
+      padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2rem, 4vw, 3rem);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .games-hero::before {
+      content: "";
+      position: absolute; top: 0; right: 0; bottom: 0; width: 55%;
+      background: radial-gradient(circle at 80% 25%, rgba(185, 28, 28, 0.07), transparent 65%);
+      pointer-events: none;
+    }
+    .games-hero-inner {
+      max-width: var(--container);
+      margin-inline: auto;
+      padding-inline: 1.5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(260px, 360px);
+      gap: 3rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 820px) {
+      .games-hero-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+    }
+    .hero-eyebrow {
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red-700);
+      margin: 0 0 0.8em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .hero-eyebrow::before {
+      content: "";
+      width: 28px; height: 2px;
+      background: var(--red-700);
+    }
+    .hero-title {
+      font-size: clamp(2rem, 5.5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin: 0 0 1rem;
+      color: var(--ink);
+    }
+    .hero-title .accent { color: var(--red-700); }
+    .hero-sub {
+      font-size: var(--fs-md);
+      color: var(--ink-soft);
+      max-width: 560px;
+      margin: 0 0 1.75rem;
+      line-height: 1.65;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 1.25rem;
+    }
+    .hero-stats .stat {
+      display: flex; flex-direction: column; gap: 0.15rem;
+    }
+    .hero-stats .num {
+      font-size: var(--fs-2xl);
+      font-weight: 800;
+      color: var(--red-700);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .hero-stats .lbl {
+      font-size: var(--fs-xs);
+      color: var(--ink-mute);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .hero-side {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+    }
+    .hero-side h3 {
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      color: var(--ink);
+    }
+    .hero-side p {
+      font-size: var(--fs-sm);
+      color: var(--ink-soft);
+      margin: 0 0 1.25rem;
+      line-height: 1.5;
+    }
+    .hero-side .platform-pills {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem;
+    }
+    .hero-side .platform-pills span {
+      font-size: var(--fs-xs);
+      color: var(--ink-mute);
+      background: var(--line-soft);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 500;
+    }
 
-  /* Footer */
-  .site-footer {
-    padding: 2rem 0 3rem;
-    border-top: 1px solid var(--header-border);
-  }
-  .site-footer .container {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem 1rem;
-  }
-  .site-footer .footer-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    align-items: flex-start;
-  }
-  .site-footer a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.875rem;
-    transition: color 0.18s;
-  }
-  .site-footer a:hover { color: var(--accent); }
-  .site-footer .footer-text {
-    color: var(--muted);
-    font-size: 0.8rem;
-    margin: 0;
-  }
-  @media (max-width: 540px) {
-    .site-footer .container { justify-content: center; text-align: center; }
-    .site-footer .footer-links { align-items: center; }
-  }
+    /* Section */
+    .games-section {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3rem;
+    }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-head h2 {
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+      color: var(--ink);
+    }
+    .section-head .count {
+      font-size: var(--fs-sm);
+      color: var(--ink-mute);
+      font-weight: 500;
+    }
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .site-header { padding: 2rem 0 1rem; }
-    .games-grid { gap: 1rem; }
-    .site-stats { gap: 1rem; padding: 0.6rem 1rem; font-size: 0.8rem; }
-  }
-  @media (max-width: 420px) {
-    .container { padding: 0 1rem; }
-    .filter-chip { padding: 0.4rem 0.85rem; font-size: 0.78rem; }
-  }
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .filter-chip {
+      padding: 0.45rem 1rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-chip:hover { border-color: var(--red-700); color: var(--ink); }
+    .filter-chip.active {
+      background: var(--red-700);
+      border-color: var(--red-700);
+      color: #fff;
+    }
 
-  /* Reveal animation */
-  .reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-  .reveal.in {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    /* Games grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .game-card {
+      display: block;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--ink);
+      transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s;
+      position: relative;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--card-accent, var(--red-700));
+    }
+    .game-card .preview {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+    }
+    .game-card .preview-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .game-card .preview-emoji {
+      position: absolute;
+      top: 0.75rem; right: 0.85rem;
+      font-size: 1.5rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .game-card .genre-tag {
+      position: absolute;
+      bottom: 0.75rem; left: 0.85rem;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #fff;
+      background: rgba(0,0,0,0.55);
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    .game-card .card-body {
+      padding: 1rem 1.15rem 1.15rem;
+    }
+    .game-card .card-title {
+      font-size: var(--fs-md);
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      color: var(--ink);
+    }
+    .game-card .card-desc {
+      font-size: var(--fs-sm);
+      color: var(--ink-soft);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .game-card .card-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: var(--fs-xs);
+      color: var(--ink-mute);
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--line);
+      margin-bottom: 0.6rem;
+    }
+    .game-card .card-progress .stars { color: var(--red-700); }
+    .game-card .card-progress .stars .empty { color: var(--ink-faint); }
+    .game-card .play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: var(--fs-sm);
+      font-weight: 700;
+      color: var(--card-accent, var(--red-700));
+    }
+    .game-card:hover .play-btn { text-decoration: underline; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
-    .game-card, .preview-canvas, .play-btn, .filter-chip { transition: none; }
-  }
-</style>
+    /* Reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .game-card { transition: none; }
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 640px) {
+      .games-section { padding: 1.5rem 1rem 2rem; }
+      .games-grid { gap: 1rem; }
+      .hero-stats { gap: 1.25rem; }
+      .hero-side { padding: 1.25rem; }
+    }
+  </style>
 </head>
-<body>
-  <header class="site-header">
-    <div class="container">
-      <span class="site-eyebrow">Mini Games Collection</span>
-      <h1 class="site-title">Bayhaqy <span class="accent">Arcade</span></h1>
-      <p class="site-subtitle">Seven handcrafted browser games — each with progressive levels, star ratings, and persistent progress. No installs, no ads, just play.</p>
-      <div class="site-stats">
-        <span class="stat-pill"><span class="dot"></span><strong>7</strong> Games</span>
-        <span class="stat-pill"><span class="dot"></span><strong>70</strong> Levels</span>
-        <span class="stat-pill"><span class="dot"></span><strong>210</strong> Stars to earn</span>
+<body data-game-name="Arcade">
+  <script src="/games/assets/app-shell.js"></script>
+
+  <main>
+    <!-- Hero -->
+    <section class="games-hero">
+      <div class="games-hero-inner">
+        <div>
+          <p class="hero-eyebrow">Browser arcade · No installs</p>
+          <h1 class="hero-title">Seven handcrafted games that <span class="accent">just play</span>.</h1>
+          <p class="hero-sub">Each game ships with progressive levels, star ratings, and persistent progress saved in your browser. No accounts, no ads, no tracking — pick a game and go.</p>
+          <div class="hero-actions">
+            <a href="#games" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="6 9 12 15 18 9"/></svg>
+              Browse all 7 games
+            </a>
+          </div>
+          <ul class="hero-stats">
+            <li class="stat"><span class="num">7</span><span class="lbl">Games</span></li>
+            <li class="stat"><span class="num">65</span><span class="lbl">Levels</span></li>
+            <li class="stat"><span class="num">195</span><span class="lbl">Stars</span></li>
+            <li class="stat"><span class="num">0</span><span class="lbl">Sign-ups</span></li>
+          </ul>
+        </div>
+        <aside class="hero-side">
+          <h3>Instant play</h3>
+          <p>All games run on Canvas — no Flash, no plugins, no downloads. Works on phone, tablet, laptop, desktop.</p>
+          <div class="platform-pills">
+            <span>Mobile-friendly</span>
+            <span>Touch + keyboard</span>
+            <span>Offline-capable</span>
+            <span>Save progress</span>
+          </div>
+        </aside>
       </div>
-    </div>
-  </header>
+    </section>
 
-  <main class="container">
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-chip active" data-filter="all">All</button>
-      <button class="filter-chip" data-filter="puzzle">Puzzle</button>
-      <button class="filter-chip" data-filter="action">Action</button>
-      <button class="filter-chip" data-filter="reflex">Reflex</button>
-      <button class="filter-chip" data-filter="hypercasual">Hypercasual</button>
-    </div>
-
-    <section class="games-grid" id="gamesGrid">
-      <!-- Cards injected by JS -->
+    <!-- Games grid -->
+    <section class="games-section" id="games">
+      <div class="section-head">
+        <h2>All games</h2>
+        <span class="count" id="gameCount">7 games</span>
+      </div>
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="puzzle">Puzzle</button>
+        <button class="filter-chip" data-filter="action">Action</button>
+        <button class="filter-chip" data-filter="reflex">Reflex</button>
+        <button class="filter-chip" data-filter="hypercasual">Hypercasual</button>
+      </div>
+      <div class="games-grid" id="gamesGrid">
+        <!-- Cards injected by JS -->
+      </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-links">
-        <a href="https://bayhaqy.my.id/">← Back to portfolio</a>
-        <p class="footer-text">© 2026 Achmad Bayhaqy. Built with HTML5 Canvas.</p>
-      </div>
-      <button class="theme-toggle-portal" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">
-        <span class="icon-moon" aria-hidden="true">🌙</span>
-        <span class="icon-sun" aria-hidden="true">☀️</span>
-        <span class="toggle-label">Theme</span>
-      </button>
+  <!-- Footer (reuses .app-footer from theme.css) -->
+  <footer class="app-footer">
+    <div class="app-footer-inner">
+      <a class="brand-mini" href="/games/" aria-label="Bayhaqy — Arcade home">
+        <img src="/games/icons/logo.png" alt="Bayhaqy" />
+      </a>
+      <span class="copy">© 2026 Achmad Bayhaqy. All rights reserved.</span>
+      <span class="links">
+        <a href="https://bayhaqy.my.id/">Portfolio</a>
+        <a href="https://bayhaqy.my.id/kids/">Kids</a>
+        <a href="https://bayhaqy.my.id/apps/">Apps</a>
+        <a href="https://github.com/bayhaqy/games">GitHub</a>
+      </span>
     </div>
   </footer>
 
@@ -524,7 +461,7 @@ const GAMES = [
     previewBg: "linear-gradient(180deg, #7DD3FC 0%, #38BDF8 60%, #22C55E 60%, #16A34A 100%)",
     description: "Drag the slingshot, launch birds, pop all the pigs. 5 levels with wood and stone obstacles.",
     difficulty: 2,
-    progressKey: null, // Angry Birds doesn't persist progress to localStorage
+    progressKey: null,
     totalLevels: 5,
   },
   {
@@ -617,8 +554,7 @@ function getStarsEarned(game) {
   const p = getProgress(game);
   if (!p) return { total: 0, possible: game.totalLevels * 3, unlocked: 0 };
   let total = 0;
-  let unlocked = 1; // level 1 always unlocked
-  // Detect common shapes: { unlocked: N, stars: {1:3, 2:2, ...} }
+  let unlocked = 1;
   if (typeof p.unlocked === "number") {
     unlocked = p.unlocked;
   }
@@ -668,6 +604,7 @@ function renderCards(filter) {
   const grid = document.getElementById("gamesGrid");
   grid.innerHTML = "";
   const filtered = filter === "all" ? GAMES : GAMES.filter(g => g.genre === filter);
+  document.getElementById("gameCount").textContent = `${filtered.length} game${filtered.length === 1 ? "" : "s"}`;
   filtered.forEach((game, i) => {
     const card = document.createElement("a");
     card.className = "game-card reveal";
@@ -691,12 +628,10 @@ function renderCards(filter) {
     grid.appendChild(card);
   });
 
-  // Trigger reveal
   requestAnimationFrame(() => {
     document.querySelectorAll(".reveal").forEach(el => el.classList.add("in"));
   });
 
-  // Draw mini-previews
   document.querySelectorAll(".preview-canvas").forEach(c => {
     const slug = c.dataset.slug;
     drawPreview(c, slug);
@@ -717,7 +652,6 @@ function drawPreview(canvas, slug) {
     raf = requestAnimationFrame(loop);
   }
 
-  // Only animate when visible
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -731,13 +665,10 @@ function drawPreview(canvas, slug) {
     });
   }, { threshold: 0.1 });
   io.observe(canvas);
-
-  // Stop when card hovered (preview-canvas already scales)
 }
 
 function draw(slug, ctx, W, H, t) {
   ctx.clearRect(0, 0, W, H);
-
   switch (slug) {
     case "angry-birds": drawAngryBirds(ctx, W, H, t); break;
     case "tetris": drawTetris(ctx, W, H, t); break;
@@ -749,13 +680,9 @@ function draw(slug, ctx, W, H, t) {
   }
 }
 
-// Each preview is a tiny stylized animated scene representing the game
 function drawAngryBirds(ctx, W, H, t) {
-  // sky already from CSS bg
-  // Ground
   ctx.fillStyle = "#22C55E";
   ctx.fillRect(0, H * 0.7, W, H * 0.3);
-  // Slingshot
   ctx.strokeStyle = "#78350F";
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -764,11 +691,9 @@ function drawAngryBirds(ctx, W, H, t) {
   ctx.moveTo(80, H * 0.7);
   ctx.lineTo(70, H * 0.5);
   ctx.stroke();
-  // Bird orbiting
   const bx = 70 + Math.cos(t * 1.5) * 18;
   const by = H * 0.5 + Math.sin(t * 1.5) * 10 - 8;
   drawBirdMini(ctx, bx, by, 12);
-  // Pig
   drawPigMini(ctx, W - 70, H * 0.65, 18);
 }
 function drawBirdMini(ctx, x, y, r) {
@@ -776,12 +701,10 @@ function drawBirdMini(ctx, x, y, r) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
-  // belly
   ctx.fillStyle = "#FECACA";
   ctx.beginPath();
   ctx.arc(x, y + r * 0.3, r * 0.55, 0, Math.PI * 2);
   ctx.fill();
-  // beak
   ctx.fillStyle = "#F59E0B";
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -789,7 +712,6 @@ function drawBirdMini(ctx, x, y, r) {
   ctx.lineTo(x + r * 1.6, y + 3);
   ctx.closePath();
   ctx.fill();
-  // eye
   ctx.fillStyle = "#fff";
   ctx.beginPath();
   ctx.arc(x + r * 0.4, y - r * 0.3, r * 0.3, 0, Math.PI * 2);
@@ -804,7 +726,6 @@ function drawPigMini(ctx, x, y, r) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
-  // snout
   ctx.fillStyle = "#16A34A";
   ctx.fillRect(x - r * 0.3, y, r * 0.6, r * 0.35);
   ctx.fillStyle = "#064E3B";
@@ -812,7 +733,6 @@ function drawPigMini(ctx, x, y, r) {
   ctx.arc(x - r * 0.1, y + r * 0.18, r * 0.06, 0, Math.PI * 2);
   ctx.arc(x + r * 0.1, y + r * 0.18, r * 0.06, 0, Math.PI * 2);
   ctx.fill();
-  // eyes
   ctx.fillStyle = "#fff";
   ctx.beginPath();
   ctx.arc(x - r * 0.35, y - r * 0.3, r * 0.18, 0, Math.PI * 2);
@@ -826,7 +746,6 @@ function drawPigMini(ctx, x, y, r) {
 }
 
 function drawTetris(ctx, W, H, t) {
-  // Grid background
   ctx.strokeStyle = "rgba(241, 245, 249, 0.04)";
   ctx.lineWidth = 1;
   const cell = 20;
@@ -836,57 +755,37 @@ function drawTetris(ctx, W, H, t) {
   for (let y = 0; y < H; y += cell) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
   }
-  // Falling pieces
   const pieces = [
-    { shape: [[1,1,1,1]], color: "#00F0F0", x: 20, y: ((t * 30) % (H + 40)) - 40 },
-    { shape: [[1,1],[1,1]], color: "#F0F000", x: 120, y: ((t * 30 + 60) % (H + 40)) - 40 },
-    { shape: [[0,1,0],[1,1,1]], color: "#A000F0", x: 220, y: ((t * 30 + 120) % (H + 40)) - 40 },
-    { shape: [[0,1,1],[1,1,0]], color: "#00F000", x: 80, y: ((t * 30 + 180) % (H + 40)) - 40 },
+    { c: "#00F0F0", shape: [[1,1,1,1]] },
+    { c: "#F8B500", shape: [[1,1],[1,1]] },
+    { c: "#B91C1C", shape: [[1,1,0],[0,1,1]] },
   ];
-  for (const p of pieces) {
-    ctx.fillStyle = p.color;
-    for (let r = 0; r < p.shape.length; r++) {
-      for (let c = 0; c < p.shape[r].length; c++) {
-        if (p.shape[r][c]) {
-          ctx.fillRect(p.x + c * cell, p.y + r * cell, cell - 1, cell - 1);
-        }
+  const idx = Math.floor(t * 0.5) % pieces.length;
+  const p = pieces[idx];
+  const px = W / 2 - p.shape[0].length * cell / 2;
+  const py = (t * 30) % (H + 40) - 40;
+  ctx.fillStyle = p.c;
+  for (let r = 0; r < p.shape.length; r++) {
+    for (let c = 0; c < p.shape[r].length; c++) {
+      if (p.shape[r][c]) {
+        ctx.fillRect(px + c * cell, py + r * cell, cell - 1, cell - 1);
       }
     }
   }
 }
 
 function drawFlappy(ctx, W, H, t) {
-  // Pipes
-  const pipeW = 36;
   const gap = 80;
-  const scroll = (t * 40) % 120;
-  for (let i = -1; i < 4; i++) {
-    const x = i * 120 - scroll;
-    const topH = 50 + (i % 2) * 30;
-    ctx.fillStyle = "#16A34A";
-    ctx.fillRect(x, 0, pipeW, topH);
-    ctx.fillRect(x, topH + gap, pipeW, H - topH - gap);
-    // pipe rim
-    ctx.fillStyle = "#15803D";
-    ctx.fillRect(x - 3, topH - 8, pipeW + 6, 8);
-    ctx.fillRect(x - 3, topH + gap, pipeW + 6, 8);
-  }
-  // Ground
-  ctx.fillStyle = "#FBBF24";
-  ctx.fillRect(0, H - 14, W, 14);
-  // Bird
-  const bx = 50 + Math.sin(t * 4) * 6;
-  const by = H / 2 + Math.sin(t * 2) * 18;
+  const gapY = H / 2 + Math.sin(t * 0.8) * 20;
+  ctx.fillStyle = "#22C55E";
+  ctx.fillRect(W * 0.6, 0, 50, gapY - gap / 2);
+  ctx.fillRect(W * 0.6, gapY + gap / 2, 50, H - (gapY + gap / 2));
+  const bx = 60;
+  const by = H / 2 + Math.sin(t * 3) * 12;
   ctx.fillStyle = "#F59E0B";
   ctx.beginPath();
   ctx.arc(bx, by, 12, 0, Math.PI * 2);
   ctx.fill();
-  // wing
-  ctx.fillStyle = "#D97706";
-  ctx.beginPath();
-  ctx.ellipse(bx - 4, by + 2, 6, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  // eye
   ctx.fillStyle = "#fff";
   ctx.beginPath();
   ctx.arc(bx + 4, by - 3, 4, 0, Math.PI * 2);
@@ -895,174 +794,78 @@ function drawFlappy(ctx, W, H, t) {
   ctx.beginPath();
   ctx.arc(bx + 5, by - 3, 2, 0, Math.PI * 2);
   ctx.fill();
-  // beak
-  ctx.fillStyle = "#DC2626";
+  ctx.fillStyle = "#F59E0B";
   ctx.beginPath();
   ctx.moveTo(bx + 10, by);
   ctx.lineTo(bx + 16, by - 2);
-  ctx.lineTo(bx + 16, by + 4);
+  ctx.lineTo(bx + 16, by + 2);
   ctx.closePath();
   ctx.fill();
 }
 
 function draw2048(ctx, W, H, t) {
-  // 4x4 grid of tiles with values cycling
-  const cellSize = 50;
-  const gap = 6;
-  const offsetX = (W - 4 * cellSize - 3 * gap) / 2;
-  const offsetY = (H - 4 * cellSize - 3 * gap) / 2;
-  // bg grid
-  ctx.fillStyle = "rgba(30, 41, 59, 0.6)";
-  ctx.fillRect(offsetX - 6, offsetY - 6, 4 * cellSize + 3 * gap + 12, 4 * cellSize + 3 * gap + 12);
-  const colors = {
-    2: "#EEE4DA", 4: "#EDE0C8", 8: "#F2B179", 16: "#F59563",
-    32: "#F67C5F", 64: "#F65E3B", 128: "#EDCF72", 256: "#EDCC61",
-    512: "#EDC850", 1024: "#EDC53F", 2048: "#EDC22E"
-  };
-  const textColors = { 2: "#776E65", 4: "#776E65" };
-  const vals = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4, 8, 16, 32, 64];
-  const phase = Math.floor(t / 1.2) % vals.length;
+  const colors = ["#EEE4DA","#EDE0C8","#F2B179","#F59563","#F67C5F","#F65E3B"];
+  const cell = 32;
+  const ox = W / 2 - cell * 2;
+  const oy = H / 2 - cell * 2;
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 4; c++) {
-      const idx = (r * 4 + c + phase) % vals.length;
-      const v = vals[idx];
-      const x = offsetX + c * (cellSize + gap);
-      const y = offsetY + r * (cellSize + gap);
-      ctx.fillStyle = colors[v] || "#DC2626";
-      ctx.fillRect(x, y, cellSize, cellSize);
-      ctx.fillStyle = textColors[v] || "#F9F6F2";
-      const fs = v < 100 ? 22 : v < 1000 ? 18 : v < 10000 ? 14 : 11;
-      ctx.font = `bold ${fs}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(String(v), x + cellSize / 2, y + cellSize / 2);
+      const idx = (Math.floor(t * 2) + r + c) % colors.length;
+      ctx.fillStyle = colors[idx];
+      ctx.fillRect(ox + c * cell + 2, oy + r * cell + 2, cell - 4, cell - 4);
     }
   }
 }
 
 function drawStack(ctx, W, H, t) {
-  // Tower of blocks growing
-  const blockH = 18;
-  const colors = ["#DC2626", "#F59E0B", "#10B981", "#06B6D4", "#7C3AED", "#EC4899"];
-  const offset = Math.sin(t * 2) * 10;
-  // ground
-  ctx.fillStyle = "rgba(241, 245, 249, 0.06)";
-  ctx.fillRect(0, H - 20, W, 20);
-  // blocks
+  const colors = ["#EF4444","#F59E0B","#10B981","#3B82F6","#8B5CF6"];
   const baseY = H - 20;
+  const blockH = 18;
   for (let i = 0; i < 6; i++) {
-    const w = 110 - i * 6;
-    const x = W / 2 - w / 2 + (i === 5 ? offset : 0);
-    const y = baseY - (i + 1) * blockH;
+    const w = 80 - i * 8;
+    const x = W / 2 - w / 2 + Math.sin(t * 2 + i * 0.3) * (i === 5 ? 15 : 0);
+    const y = baseY - i * blockH;
     ctx.fillStyle = colors[i % colors.length];
     ctx.fillRect(x, y, w, blockH - 2);
-    // top highlight
-    ctx.fillStyle = "rgba(255,255,255,0.2)";
-    ctx.fillRect(x, y, w, 3);
   }
-  // falling cut-off piece
-  const fallY = (t * 50) % 100;
-  ctx.fillStyle = colors[3];
-  ctx.save();
-  ctx.translate(W / 2 + 80, baseY - 30 + fallY);
-  ctx.rotate(t * 3);
-  ctx.fillRect(-25, -8, 50, 16);
-  ctx.restore();
 }
 
 function drawColorSwitch(ctx, W, H, t) {
-  // Obstacle ring
+  const colors = ["#EF4444","#F59E0B","#10B981","#3B82F6"];
   const cx = W / 2;
-  const cy = H / 2 - 10;
-  const r = 50;
-  const colors = ["#DC2626", "#F59E0B", "#10B981", "#3B82F6"];
-  const rot = t * 1.2;
+  const cy = H / 2;
+  const r = 40;
+  ctx.lineWidth = 8;
   for (let i = 0; i < 4; i++) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, rot + i * Math.PI / 2, rot + i * Math.PI / 2 + Math.PI / 2);
-    ctx.lineWidth = 8;
     ctx.strokeStyle = colors[i];
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - i * 10, t * 2 + i * Math.PI / 2, t * 2 + i * Math.PI / 2 + Math.PI * 1.5);
     ctx.stroke();
   }
-  // Ball bouncing
-  const ballColorIdx = Math.floor(t / 1.5) % 4;
-  const ballY = cy + 30 + Math.sin(t * 4) * 14;
-  ctx.fillStyle = colors[ballColorIdx];
+  const ballY = cy + Math.sin(t * 4) * 30;
+  ctx.fillStyle = colors[Math.floor(t) % 4];
   ctx.beginPath();
-  ctx.arc(cx + Math.cos(t * 2) * 20, ballY, 8, 0, Math.PI * 2);
+  ctx.arc(cx, ballY, 8, 0, Math.PI * 2);
   ctx.fill();
-  // glow
-  ctx.shadowColor = colors[ballColorIdx];
-  ctx.shadowBlur = 12;
-  ctx.beginPath();
-  ctx.arc(cx + Math.cos(t * 2) * 20, ballY, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.shadowBlur = 0;
 }
 
 function drawGravityFlip(ctx, W, H, t) {
-  // Floor + ceiling
+  ctx.fillStyle = "#1E3A8A";
+  ctx.fillRect(0, H - 30, W, 30);
+  ctx.fillStyle = "#0F172A";
+  ctx.fillRect(0, 0, W, 30);
+  const ballY = (Math.sin(t * 2) + 1) / 2 * (H - 60) + 30;
   ctx.fillStyle = "#3B82F6";
-  ctx.fillRect(0, H - 16, W, 16);
-  ctx.fillRect(0, 0, W, 16);
-  // Spikes scrolling
-  const scroll = (t * 50) % 60;
-  ctx.fillStyle = "#DC2626";
-  for (let i = -1; i < 6; i++) {
-    const x = i * 60 - scroll;
-    // floor spike
-    ctx.beginPath();
-    ctx.moveTo(x, H - 16);
-    ctx.lineTo(x + 12, H - 30);
-    ctx.lineTo(x + 24, H - 16);
-    ctx.closePath();
-    ctx.fill();
-    // ceiling spike (offset)
-    if (i % 2 === 0) {
-      ctx.beginPath();
-      ctx.moveTo(x + 30, 16);
-      ctx.lineTo(x + 42, 30);
-      ctx.lineTo(x + 54, 16);
-      ctx.closePath();
-      ctx.fill();
-    }
+  ctx.beginPath();
+  ctx.arc(40, ballY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    const ox = 100 + i * 80;
+    const oh = 30 + Math.sin(t + i) * 10;
+    ctx.fillStyle = "#60A5FA";
+    ctx.fillRect(ox, H - 30 - oh, 15, oh);
   }
-  // Ball flipping between floor and ceiling
-  const flipPhase = Math.sin(t * 1.8);
-  const ballY = flipPhase > 0 ? H - 28 : 28;
-  const ballRotation = flipPhase > 0 ? 0 : Math.PI;
-  ctx.save();
-  ctx.translate(60, ballY);
-  ctx.rotate(ballRotation);
-  // two-tone ball
-  ctx.fillStyle = "#3B82F6";
-  ctx.beginPath();
-  ctx.arc(0, 0, 10, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#DBEAFE";
-  ctx.beginPath();
-  ctx.arc(0, 0, 10, Math.PI, Math.PI * 2);
-  ctx.fill();
-  // eye
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.arc(3, -3, 1.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
 }
-
-// ---------- Theme toggle ----------
-(function() {
-  var toggle = document.getElementById('themeToggle');
-  if (toggle) {
-    toggle.addEventListener('click', function() {
-      var current = document.documentElement.getAttribute('data-theme') || 'light';
-      var next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      try { localStorage.setItem('arcade-theme', next); } catch (e) {}
-    });
-  }
-})();
 
 // ---------- Filter wiring ----------
 document.getElementById("filterBar").addEventListener("click", (e) => {
